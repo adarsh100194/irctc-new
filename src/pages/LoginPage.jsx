@@ -94,11 +94,14 @@ export default function LoginPage({ onLogin }) {
     return () => clearInterval(testimonialTimer.current)
   }, [])
 
-  /* Auth method: 'credentials' | 'mobile' | 'aadhaar' */
+  /* Auth method: 'credentials' | 'otp' */
   /* Demo credentials toast */
   const [showDemoToast, setShowDemoToast] = useState(true)
 
   const [authMethod, setAuthMethod] = useState('credentials')
+
+  /* OTP sub-type: 'mobile' | 'aadhaar' | 'vid' */
+  const [otpType, setOtpType] = useState('mobile')
 
   /* Mobile OTP */
   const [mobile, setMobile]             = useState('')
@@ -110,10 +113,22 @@ export default function LoginPage({ onLogin }) {
   const [aadhaarOtp, setAadhaarOtp]         = useState('')
   const [aadhaarOtpSent, setAadhaarOtpSent] = useState(false)
 
+  /* Virtual ID OTP */
+  const [vid, setVid]               = useState('')
+  const [vidOtp, setVidOtp]         = useState('')
+  const [vidOtpSent, setVidOtpSent] = useState(false)
+
   const resetAlt = () => {
-    setAuthMethod('credentials'); setError('')
+    setAuthMethod('credentials'); setError(''); setOtpType('mobile')
     setMobile(''); setMobileOtp(''); setMobileOtpSent(false)
     setAadhaar(''); setAadhaarOtp(''); setAadhaarOtpSent(false)
+    setVid(''); setVidOtp(''); setVidOtpSent(false)
+  }
+
+  /* helper: reset only the OTP-sent state when switching sub-type */
+  const switchOtpType = (type) => {
+    setOtpType(type); setError('')
+    setMobileOtpSent(false); setAadhaarOtpSent(false); setVidOtpSent(false)
   }
 
   /* ── Credential login ── */
@@ -153,6 +168,20 @@ export default function LoginPage({ onLogin }) {
   }
   const verifyAadhaarOtp = () => {
     if (aadhaarOtp.length !== 6) { setError('Enter the 6-digit OTP'); return }
+    onLogin({ name: MOCK.name, username: 'testuser' }); navigate('/home')
+  }
+
+  /* ── Virtual ID OTP ── */
+  const fmtVid = (v) => {
+    const d = v.replace(/\D/g, '').slice(0, 16)
+    return d.replace(/(\d{4})(?=\d)/g, '$1 ')
+  }
+  const sendVidOtp = () => {
+    if (vid.replace(/\s/g, '').length !== 16) { setError('Enter a valid 16-digit Virtual ID'); return }
+    setError(''); setVidOtpSent(true)
+  }
+  const verifyVidOtp = () => {
+    if (vidOtp.length !== 6) { setError('Enter the 6-digit OTP'); return }
     onLogin({ name: MOCK.name, username: 'testuser' }); navigate('/home')
   }
 
@@ -451,28 +480,31 @@ export default function LoginPage({ onLogin }) {
 
                     {/* Alt auth buttons */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      {[
-                        { method: 'mobile',  Icon: Smartphone,  label: tl('login.mobileOtp'),  sub: 'SMS one-time password',    color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.15)'  : '#eef2ff' },
-                        { method: 'aadhaar', Icon: Fingerprint,  label: tl('login.aadhaarOtp'), sub: '12-digit Aadhaar + OTP', color: '#34d399', bg: isDark ? 'rgba(52,211,153,0.12)'  : '#ecfdf5' },
-                      ].map(({ method, Icon, label, sub, color, bg }) => (
-                        <button key={method} type="button" onClick={() => { setAuthMethod(method); setError('') }} style={{
-                          width: '100%', padding: '11px 16px', borderRadius: 12,
-                          border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', transition: 'border-color 0.15s',
-                        }}
-                          onMouseEnter={e => e.currentTarget.style.borderColor = color + '60'}
-                          onMouseLeave={e => e.currentTarget.style.borderColor = t.border}
-                        >
-                          <div style={{ width: 34, height: 34, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Icon size={15} style={{ color }} />
+
+                      {/* Combined OTP button */}
+                      <button type="button" onClick={() => { setAuthMethod('otp'); setError('') }} style={{
+                        width: '100%', padding: '11px 16px', borderRadius: 12,
+                        border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', transition: 'border-color 0.15s',
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = '#6366f1' + '70'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = t.border}
+                      >
+                        {/* Two overlapping icons */}
+                        <div style={{ position: 'relative', width: 34, height: 34, flexShrink: 0 }}>
+                          <div style={{ position: 'absolute', inset: 0, borderRadius: 10, background: isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Smartphone size={15} style={{ color: '#6366f1' }} />
                           </div>
-                          <div>
-                            <div style={{ color: t.text, fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>{label}</div>
-                            <div style={{ color: t.textMuted, fontSize: 11 }}>{sub}</div>
+                          <div style={{ position: 'absolute', bottom: -3, right: -4, width: 18, height: 18, borderRadius: 6, background: isDark ? 'rgba(52,211,153,0.2)' : '#ecfdf5', border: `2px solid ${t.surface}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Fingerprint size={10} style={{ color: '#34d399' }} />
                           </div>
-                          <ArrowRight size={12} style={{ color: t.textMuted, marginLeft: 'auto' }} />
-                        </button>
-                      ))}
+                        </div>
+                        <div>
+                          <div style={{ color: t.text, fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>OTP Sign in</div>
+                          <div style={{ color: t.textMuted, fontSize: 11 }}>Mobile · Aadhaar · Virtual ID</div>
+                        </div>
+                        <ArrowRight size={12} style={{ color: t.textMuted, marginLeft: 'auto' }} />
+                      </button>
 
                       {/* DigiLocker */}
                       <button type="button" onClick={loginDigiLocker} style={{
@@ -496,74 +528,123 @@ export default function LoginPage({ onLogin }) {
                   </form>
                 )}
 
-                {/* ── MOBILE OTP ── */}
-                {authMethod === 'mobile' && (
+                {/* ── COMBINED OTP PANEL ── */}
+                {authMethod === 'otp' && (
                   <div>
                     <BackBtn onClick={resetAlt} t={t} />
-                    <h2 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>Mobile OTP</h2>
-                    <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>Enter your registered mobile number</p>
-                    {!mobileOtpSent ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        <div>
-                          <label style={labelSt}>Mobile Number</label>
-                          <div style={{ display: 'flex', gap: 10 }}>
-                            <div style={{ padding: '12px 14px', borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.input, color: t.textSec, fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>🇮🇳 +91</div>
-                            <input value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="98765 43210" style={{ ...iStyle, flex: 1 }} inputMode="numeric" />
-                          </div>
-                        </div>
-                        {error && <ErrBox msg={error} t={t} />}
-                        <button type="button" onClick={sendMobileOtp} style={btnPrimary}>Send OTP <ArrowRight size={14} /></button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        <div style={{ padding: '12px 16px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 13 }}>
-                          ✓ OTP sent to +91 {mobile.slice(0, 5)}•••••
-                        </div>
-                        <div>
-                          <label style={labelSt}>Enter OTP</label>
-                          <input value={mobileOtp} onChange={e => setMobileOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter 6-digit OTP" style={iStyle} inputMode="numeric" />
-                        </div>
-                        {error && <ErrBox msg={error} t={t} />}
-                        <button type="button" onClick={verifyMobileOtp} style={btnPrimary}>Verify & Sign in <ArrowRight size={14} /></button>
-                        <button type="button" onClick={() => { setMobileOtpSent(false); setError('') }} style={{ background: 'none', border: 'none', color: t.accent, fontSize: 13, cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>
-                          Change number or resend OTP
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    <h2 style={{ color: t.text, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>OTP Sign in</h2>
+                    <p style={{ color: t.textSec, fontSize: 13, marginBottom: 20 }}>Choose your verification method</p>
 
-                {/* ── AADHAAR OTP ── */}
-                {authMethod === 'aadhaar' && (
-                  <div>
-                    <BackBtn onClick={resetAlt} t={t} />
-                    <h2 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>Aadhaar OTP</h2>
-                    <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>Secure verification via UIDAI</p>
-                    {!aadhaarOtpSent ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        <div>
-                          <label style={labelSt}>Aadhaar Number</label>
-                          <input value={aadhaar} onChange={e => setAadhaar(fmtAadhaar(e.target.value))} placeholder="XXXX XXXX XXXX" style={iStyle} maxLength={14} inputMode="numeric" />
-                          <div style={{ color: t.textMuted, fontSize: 11, marginTop: 6 }}>🔒 Encrypted end-to-end · Never stored on our servers</div>
-                        </div>
-                        {error && <ErrBox msg={error} t={t} />}
-                        <button type="button" onClick={sendAadhaarOtp} style={btnPrimary}>Send OTP to linked mobile <ArrowRight size={14} /></button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        <div style={{ padding: '12px 16px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 13 }}>
-                          ✓ OTP sent to mobile linked with Aadhaar {aadhaar.slice(0, 4)} ••••
-                        </div>
-                        <div>
-                          <label style={labelSt}>Enter OTP</label>
-                          <input value={aadhaarOtp} onChange={e => setAadhaarOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter 6-digit OTP" style={iStyle} inputMode="numeric" />
-                        </div>
-                        {error && <ErrBox msg={error} t={t} />}
-                        <button type="button" onClick={verifyAadhaarOtp} style={btnPrimary}>Verify & Sign in <ArrowRight size={14} /></button>
-                        <button type="button" onClick={() => { setAadhaarOtpSent(false); setError('') }} style={{ background: 'none', border: 'none', color: t.accent, fontSize: 13, cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>
-                          Change Aadhaar or resend OTP
+                    {/* ── 3-tab type switcher ── */}
+                    <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: t.surface, borderRadius: 12, padding: 4, border: `1px solid ${t.border}` }}>
+                      {[
+                        { key: 'mobile',  label: 'Mobile',     Icon: Smartphone },
+                        { key: 'aadhaar', label: 'Aadhaar',    Icon: Fingerprint },
+                        { key: 'vid',     label: 'Virtual ID', Icon: ShieldCheck },
+                      ].map(({ key, label, Icon }) => (
+                        <button key={key} type="button" onClick={() => switchOtpType(key)} style={{
+                          flex: 1, padding: '8px 4px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                          fontSize: 12, fontWeight: 600, transition: 'all 0.15s',
+                          background: otpType === key ? (isDark ? 'rgba(255,255,255,0.1)' : 'white') : 'transparent',
+                          color: otpType === key ? t.text : t.textMuted,
+                          boxShadow: otpType === key ? (isDark ? 'none' : '0 1px 4px rgba(0,0,0,0.1)') : 'none',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                        }}>
+                          <Icon size={12} /> {label}
                         </button>
-                      </div>
+                      ))}
+                    </div>
+
+                    {/* ── Mobile tab ── */}
+                    {otpType === 'mobile' && (
+                      !mobileOtpSent ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div>
+                            <label style={labelSt}>Mobile Number</label>
+                            <div style={{ display: 'flex', gap: 10 }}>
+                              <div style={{ padding: '12px 14px', borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.input, color: t.textSec, fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>🇮🇳 +91</div>
+                              <input value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="98765 43210" style={{ ...iStyle, flex: 1 }} inputMode="numeric" />
+                            </div>
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={sendMobileOtp} style={btnPrimary}>{tl('login.sendOtp')} <ArrowRight size={14} /></button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div style={{ padding: '12px 16px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 13 }}>
+                            ✓ OTP sent to +91 {mobile.slice(0, 5)}•••••
+                          </div>
+                          <div>
+                            <label style={labelSt}>{tl('login.enterOtp')}</label>
+                            <input value={mobileOtp} onChange={e => setMobileOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter 6-digit OTP" style={iStyle} inputMode="numeric" />
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={verifyMobileOtp} style={btnPrimary}>{tl('login.verifyOtp')} <ArrowRight size={14} /></button>
+                          <button type="button" onClick={() => { setMobileOtpSent(false); setError('') }} style={{ background: 'none', border: 'none', color: t.accent, fontSize: 13, cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>
+                            Change number or resend OTP
+                          </button>
+                        </div>
+                      )
+                    )}
+
+                    {/* ── Aadhaar tab ── */}
+                    {otpType === 'aadhaar' && (
+                      !aadhaarOtpSent ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div>
+                            <label style={labelSt}>Aadhaar Number</label>
+                            <input value={aadhaar} onChange={e => setAadhaar(fmtAadhaar(e.target.value))} placeholder="XXXX XXXX XXXX" style={iStyle} maxLength={14} inputMode="numeric" />
+                            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 6 }}>🔒 Encrypted end-to-end · Never stored on our servers</div>
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={sendAadhaarOtp} style={btnPrimary}>{tl('login.sendOtp')} to linked mobile <ArrowRight size={14} /></button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div style={{ padding: '12px 16px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 13 }}>
+                            ✓ OTP sent to mobile linked with Aadhaar {aadhaar.slice(0, 4)} ••••
+                          </div>
+                          <div>
+                            <label style={labelSt}>{tl('login.enterOtp')}</label>
+                            <input value={aadhaarOtp} onChange={e => setAadhaarOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter 6-digit OTP" style={iStyle} inputMode="numeric" />
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={verifyAadhaarOtp} style={btnPrimary}>{tl('login.verifyOtp')} <ArrowRight size={14} /></button>
+                          <button type="button" onClick={() => { setAadhaarOtpSent(false); setError('') }} style={{ background: 'none', border: 'none', color: t.accent, fontSize: 13, cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>
+                            Change Aadhaar or resend OTP
+                          </button>
+                        </div>
+                      )
+                    )}
+
+                    {/* ── Virtual ID tab ── */}
+                    {otpType === 'vid' && (
+                      !vidOtpSent ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div>
+                            <label style={labelSt}>Virtual ID (VID)</label>
+                            <input value={vid} onChange={e => setVid(fmtVid(e.target.value))} placeholder="XXXX XXXX XXXX XXXX" style={iStyle} maxLength={19} inputMode="numeric" />
+                            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 6 }}>16-digit VID generated from UIDAI · Replaces Aadhaar number</div>
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={sendVidOtp} style={btnPrimary}>{tl('login.sendOtp')} to linked mobile <ArrowRight size={14} /></button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div style={{ padding: '12px 16px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 13 }}>
+                            ✓ OTP sent to mobile linked with VID {vid.slice(0, 4)} ••••
+                          </div>
+                          <div>
+                            <label style={labelSt}>{tl('login.enterOtp')}</label>
+                            <input value={vidOtp} onChange={e => setVidOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter 6-digit OTP" style={iStyle} inputMode="numeric" />
+                          </div>
+                          {error && <ErrBox msg={error} t={t} />}
+                          <button type="button" onClick={verifyVidOtp} style={btnPrimary}>{tl('login.verifyOtp')} <ArrowRight size={14} /></button>
+                          <button type="button" onClick={() => { setVidOtpSent(false); setError('') }} style={{ background: 'none', border: 'none', color: t.accent, fontSize: 13, cursor: 'pointer', textAlign: 'center', padding: '4px 0' }}>
+                            Change VID or resend OTP
+                          </button>
+                        </div>
+                      )
                     )}
                   </div>
                 )}
