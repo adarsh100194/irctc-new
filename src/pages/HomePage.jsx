@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, ArrowRight, MapPin, Calendar, LayoutGrid, Repeat, Train, ShieldCheck, Navigation, X, ChevronRight } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { UPCOMING_TRIPS, MOCK_BOOKINGS } from '../data/mockData'
 import { useWindowSize } from '../hooks/useWindowSize'
 
@@ -151,12 +152,10 @@ const getCountdown = (dateStr, depTime, now) => {
   if (diff <= 0) return { text: 'Departed', urgent: false, color: '#94a3b8' }
   const days = Math.floor(diff / 86400000)
   const hours = Math.floor((diff % 86400000) / 3600000)
-  const mins = Math.floor((diff % 3600000) / 60000)
-  const secs = Math.floor((diff % 60000) / 1000)
   const urgent = days < 2
   const parts = []
   if (days > 0) parts.push(`${days}d`)
-  parts.push(`${hours}h`, `${mins}m`, `${secs}s`)
+  parts.push(`${hours}h`)
   return { text: parts.join(' '), urgent, color: days === 0 ? '#ef4444' : days < 3 ? '#f97316' : '#34d399' }
 }
 
@@ -165,6 +164,7 @@ const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { weekday: 'short',
 export default function HomePage({ user, onLogout }) {
   const navigate = useNavigate()
   const { t, isDark } = useTheme()
+  const { tl } = useLanguage()
   const { isMobile, isTablet } = useWindowSize()
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
@@ -185,7 +185,7 @@ export default function HomePage({ user, onLogout }) {
   const [trackResult, setTrackResult] = useState(null)
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000)
+    const timer = setInterval(() => setNow(new Date()), 60000)
     return () => clearInterval(timer)
   }, [])
 
@@ -223,8 +223,8 @@ export default function HomePage({ user, onLogout }) {
   const upcomingSection = UPCOMING_TRIPS.length > 0 && (
     <div>
       <div style={{ marginBottom: 14 }}>
-        <h2 style={{ color: t.text, fontSize: 17, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>Your upcoming trips</h2>
-        <p style={{ color: t.textSec, fontSize: 12 }}>Live countdown to departure</p>
+        <h2 style={{ color: t.text, fontSize: 17, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{tl('home.upcomingTrips')}</h2>
+        <p style={{ color: t.textSec, fontSize: 12 }}>{tl('home.liveCountdown')}</p>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {UPCOMING_TRIPS.map((trip) => {
@@ -254,23 +254,23 @@ export default function HomePage({ user, onLogout }) {
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ color: cd.color, fontWeight: 800, fontSize: 13, fontVariantNumeric: 'tabular-nums' }}>{cd.text}</div>
-                <div style={{ color: t.textMuted, fontSize: 10, marginTop: 1 }}>remaining</div>
+                <div style={{ color: t.textMuted, fontSize: 10, marginTop: 1 }}>{tl('home.remaining')}</div>
               </div>
             </button>
           )
         })}
       </div>
       <button onClick={() => navigate('/bookings')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, width: '100%', marginTop: 10, padding: '8px', borderRadius: 10, border: `1px solid ${t.border}`, background: 'transparent', color: t.textSec, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-        View all bookings <ChevronRight size={12} />
+        {tl('home.viewAllBookings')} <ChevronRight size={12} />
       </button>
     </div>
   )
 
   const QUICK_TOOLS = [
-    { icon: '🔍', label: 'PNR Status', sub: 'Track booking', color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', onClick: () => { setShowPnr(true); setPnrResult(null); setPnrInput('') } },
-    { icon: '📡', label: 'Track Train', sub: 'Live location', color: '#10b981', bg: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', onClick: () => { setShowTrack(true); setTrackResult(null); setTrainNumInput('') } },
-    { icon: '🗓️', label: 'Train Schedule', sub: 'Timings & stops', color: '#f97316', bg: isDark ? 'rgba(249,115,22,0.1)' : '#fff7ed', onClick: () => navigate('/search?from=New Delhi (NDLS)&to=Mumbai CST (CSTM)&date=' + date + '&class=All Classes') },
-    { icon: '❌', label: 'Cancel Ticket', sub: 'E-cancellation', color: '#f87171', bg: isDark ? 'rgba(248,113,113,0.08)' : '#fef2f2', onClick: () => navigate('/bookings') },
+    { icon: '🔍', label: tl('home.pnrStatus'), sub: tl('home.enterPnr'), color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', onClick: () => { setShowPnr(true); setPnrResult(null); setPnrInput('') } },
+    { icon: '📡', label: tl('home.trainRunning'), sub: tl('home.enterTrainNum'), color: '#10b981', bg: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', onClick: () => { setShowTrack(true); setTrackResult(null); setTrainNumInput('') } },
+    { icon: '🗓️', label: tl('home.timetable'), sub: 'Timings & stops', color: '#f97316', bg: isDark ? 'rgba(249,115,22,0.1)' : '#fff7ed', onClick: () => navigate('/search?from=New Delhi (NDLS)&to=Mumbai CST (CSTM)&date=' + date + '&class=All Classes') },
+    { icon: '❌', label: tl('home.refundStatus'), sub: 'E-cancellation', color: '#f87171', bg: isDark ? 'rgba(248,113,113,0.08)' : '#fef2f2', onClick: () => navigate('/bookings') },
     { icon: '🍱', label: 'Order Food', sub: 'E-Catering', color: '#f59e0b', bg: isDark ? 'rgba(245,158,11,0.08)' : '#fffbeb', onClick: () => navigate('/bookings') },
     { icon: '💳', label: 'eWallet', sub: 'IRCTC Wallet', color: '#3b82f6', bg: isDark ? 'rgba(59,130,246,0.08)' : '#eff6ff', onClick: () => navigate('/profile') },
   ]
@@ -330,7 +330,7 @@ export default function HomePage({ user, onLogout }) {
                     {geoLoading ? <Navigation size={13} /> : <MapPin size={13} />}
                   </button>
                   <input value={from} onChange={e => { setFrom(e.target.value); setFromSugg(e.target.value.length > 1 ? filter(e.target.value) : []) }}
-                    onBlur={() => setTimeout(() => setFromSugg([]), 150)} placeholder="From station"
+                    onBlur={() => setTimeout(() => setFromSugg([]), 150)} placeholder={tl('home.from')}
                     style={{ background: 'none', border: 'none', outline: 'none', color: t.text, fontSize: 14, fontWeight: 600, width: '100%', padding: '8px 0', minWidth: 0 }} />
                 </div>
                 {geoError && <div style={{ position: 'absolute', top: '100%', left: 0, fontSize: 11, color: t.textSec, background: t.surfaceSolid, padding: '4px 8px', borderRadius: 6, whiteSpace: 'nowrap', zIndex: 10, border: `1px solid ${t.border}` }}>{geoError}</div>}
@@ -348,7 +348,7 @@ export default function HomePage({ user, onLogout }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: isMobile ? '4px 0' : 0 }}>
                   <MapPin size={13} style={{ color: t.textMuted, flexShrink: 0 }} />
                   <input value={to} onChange={e => { setTo(e.target.value); setToSugg(e.target.value.length > 1 ? filter(e.target.value) : []) }}
-                    onBlur={() => setTimeout(() => setToSugg([]), 150)} placeholder="To station"
+                    onBlur={() => setTimeout(() => setToSugg([]), 150)} placeholder={tl('home.to')}
                     style={{ background: 'none', border: 'none', outline: 'none', color: t.text, fontSize: 14, fontWeight: 600, width: '100%', padding: '8px 0', minWidth: 0 }} />
                 </div>
                 {toSugg.length > 0 && <Dropdown items={toSugg} onSelect={v => { setTo(v); setToSugg([]) }} t={t} />}
@@ -374,7 +374,7 @@ export default function HomePage({ user, onLogout }) {
               </div>
 
               <button type="submit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '12px 22px', borderRadius: 14, border: 'none', cursor: 'pointer', background: t.accentGrad, color: 'white', fontWeight: 700, fontSize: 14, flexShrink: 0, marginLeft: isMobile ? 0 : 8, whiteSpace: 'nowrap' }}>
-                <Search size={15} /> Search
+                <Search size={15} /> {tl('home.searchBtn')}
               </button>
             </div>
           </form>
@@ -451,8 +451,8 @@ export default function HomePage({ user, onLogout }) {
           {/* Festivals */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ marginBottom: 16 }}>
-              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>Upcoming festivals & escapes</h2>
-              <p style={{ color: t.textSec, fontSize: 12 }}>Curated for March–April · Seats filling fast</p>
+              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{tl('home.festivals')}</h2>
+              <p style={{ color: t.textSec, fontSize: 12 }}>{tl('home.festivalSubtitle')}</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
               {FESTIVALS.map((d) => {
@@ -487,8 +487,8 @@ export default function HomePage({ user, onLogout }) {
                 <span style={{ fontSize: 11 }}>🇮🇳</span>
                 <span style={{ color: '#f97316', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Ministry of Railways, Government of India</span>
               </div>
-              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>Indian Railways by the numbers</h2>
-              <p style={{ color: t.textSec, fontSize: 12 }}>170+ years of connecting a nation — world's 4th largest railway network</p>
+              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{tl('home.irByNumbers')}</h2>
+              <p style={{ color: t.textSec, fontSize: 12 }}>{tl('home.irSubtitle')}</p>
             </div>
 
             {/* Stats grid — 2-col on mobile, 4-col when space permits */}
@@ -516,7 +516,7 @@ export default function HomePage({ user, onLogout }) {
 
           {/* Book with confidence */}
           <div style={{ padding: '20px 22px', background: isDark ? 'rgba(255,255,255,0.02)' : 'white', border: `1px solid ${t.border}`, borderRadius: 18, boxShadow: isDark ? 'none' : t.shadow }}>
-            <div style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 14 }}>Book with confidence</div>
+            <div style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 14 }}>{tl('home.bookWithConfidence')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
               {[
                 { icon: '🔒', label: 'ISO 27001:2013 Certified', sub: 'Bank-grade data security', color: '#34d399' },
@@ -567,14 +567,14 @@ export default function HomePage({ user, onLogout }) {
 
       {/* ── PNR Enquiry Modal ── */}
       {showPnr && (
-        <Modal title="PNR Enquiry" onClose={() => setShowPnr(false)} t={t} isDark={isDark}>
+        <Modal title={tl('home.pnrStatus')} onClose={() => setShowPnr(false)} t={t} isDark={isDark}>
           <p style={{ color: t.textSec, fontSize: 13, marginBottom: 16 }}>Enter your 10-digit PNR number to check booking status.</p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <input value={pnrInput} onChange={e => setPnrInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-              placeholder="Enter 10-digit PNR" inputMode="numeric"
+              placeholder={tl('home.enterPnr')} inputMode="numeric"
               style={{ flex: 1, padding: '11px 14px', borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.input, color: t.text, fontSize: 14, outline: 'none' }} />
             <button onClick={checkPnr} disabled={pnrInput.length !== 10} style={{ padding: '11px 18px', borderRadius: 10, border: 'none', background: pnrInput.length === 10 ? t.accentGrad : (isDark ? 'rgba(255,255,255,0.06)' : t.pill), color: pnrInput.length === 10 ? 'white' : t.textMuted, fontWeight: 700, fontSize: 13, cursor: pnrInput.length === 10 ? 'pointer' : 'not-allowed' }}>
-              Check
+              {tl('home.checkStatus')}
             </button>
           </div>
           <div style={{ color: t.textMuted, fontSize: 11, marginBottom: 16 }}>
@@ -611,14 +611,14 @@ export default function HomePage({ user, onLogout }) {
 
       {/* ── Track Train Modal ── */}
       {showTrack && (
-        <Modal title="Track Your Train" onClose={() => setShowTrack(false)} t={t} isDark={isDark}>
+        <Modal title={tl('home.trainRunning')} onClose={() => setShowTrack(false)} t={t} isDark={isDark}>
           <p style={{ color: t.textSec, fontSize: 13, marginBottom: 16 }}>Enter train number to see live running status.</p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             <input value={trainNumInput} onChange={e => setTrainNumInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
-              placeholder="Train number (e.g. 12217)" inputMode="numeric"
+              placeholder={tl('home.enterTrainNum')} inputMode="numeric"
               style={{ flex: 1, padding: '11px 14px', borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.input, color: t.text, fontSize: 14, outline: 'none' }} />
             <button onClick={checkTrack} disabled={trainNumInput.length < 4} style={{ padding: '11px 18px', borderRadius: 10, border: 'none', background: trainNumInput.length >= 4 ? t.accentGrad : (isDark ? 'rgba(255,255,255,0.06)' : t.pill), color: trainNumInput.length >= 4 ? 'white' : t.textMuted, fontWeight: 700, fontSize: 13, cursor: trainNumInput.length >= 4 ? 'pointer' : 'not-allowed' }}>
-              Track
+              {tl('home.trackTrain')}
             </button>
           </div>
           <div style={{ color: t.textMuted, fontSize: 11, marginBottom: 16 }}>Try: 12217 · 22691 · 12951 · 12301</div>

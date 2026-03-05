@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Wifi, Coffee, GitBranch } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useWindowSize } from '../hooks/useWindowSize'
 
 const TRAINS = [
@@ -103,6 +104,7 @@ export default function SearchResults({ user, onLogout }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { t, isDark } = useTheme()
+  const { tl } = useLanguage()
   const { isMobile } = useWindowSize()
 
   const from = params.get('from') || 'New Delhi'
@@ -218,7 +220,7 @@ export default function SearchResults({ user, onLogout }) {
             padding: '6px 14px', borderRadius: 8, border: `1px solid ${t.border}`,
             background: 'transparent', color: t.textSec, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap',
           }}>
-            Modify
+            {tl('search.modifySearch')}
           </button>
         </div>
       </div>
@@ -351,7 +353,7 @@ export default function SearchResults({ user, onLogout }) {
           {trains.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: t.textMuted }}>
               <div style={{ fontSize: 40, marginBottom: 14 }}>🚂</div>
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6, color: t.textSec }}>No trains found</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6, color: t.textSec }}>{tl('search.noTrains')}</div>
               <div style={{ fontSize: 13 }}>Try a different class, time slot, or date</div>
             </div>
           ) : (
@@ -398,6 +400,7 @@ export default function SearchResults({ user, onLogout }) {
 // ── Train Card ──────────────────────────────────────────────────────────────
 function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile }) {
   const [expanded, setExpanded] = useState(false)
+  const { tl } = useLanguage()
   const typeColor = TYPE_COLOR[train.type] || '#34d399'
 
   // classes to display (exclude NA)
@@ -471,7 +474,7 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
             <div style={{ color: t.text, fontWeight: 800, fontSize: isMobile ? 22 : 26, letterSpacing: '-0.04em', lineHeight: 1 }}>
               {train.dep}
             </div>
-            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 3 }}>Dep</div>
+            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 3 }}>{tl('search.departure')}</div>
           </div>
           <div style={{ flex: 1, margin: '0 14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
             <span style={{ color: t.textSec, fontSize: 11 }}>{fmtDuration(train.duration)}</span>
@@ -484,7 +487,7 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
             <div style={{ color: t.text, fontWeight: 800, fontSize: isMobile ? 22 : 26, letterSpacing: '-0.04em', lineHeight: 1 }}>
               {train.arr}
             </div>
-            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 3 }}>Arr</div>
+            <div style={{ color: t.textMuted, fontSize: 11, marginTop: 3 }}>{tl('search.arrival')}</div>
           </div>
         </div>
 
@@ -542,14 +545,14 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
               onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
-              Book · ₹{cheapestPrice}+
+              {tl('search.bookNow')} · ₹{cheapestPrice}+
             </button>
             <button onClick={() => setExpanded(!expanded)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: t.textMuted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 0',
             }}>
-              {expanded ? 'Hide' : 'Schedule'}
+              {expanded ? 'Hide' : tl('search.runsDays')}
               <ChevronDown size={11} style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
           </div>

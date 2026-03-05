@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState } from 'react'
 import { ThemeProvider } from './context/ThemeContext'
+import { LanguageProvider } from './context/LanguageContext'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import SearchResults from './pages/SearchResults'
@@ -16,6 +17,7 @@ export default function App() {
   const handleLogout = () => { setIsLoggedIn(false); setUser(null) }
 
   return (
+    <LanguageProvider>
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
@@ -41,5 +43,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
+    </LanguageProvider>
   )
 }

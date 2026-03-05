@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import Navbar from '../components/Navbar'
 import {
   ShieldCheck, Edit3, Train, MapPin, Calendar, User, Mail, Phone,
@@ -263,6 +264,7 @@ function TdrCard({ tdr, t, isDark }) {
 // ── Main export ────────────────────────────────────────────────────────────
 export default function ProfilePage({ user, onLogout }) {
   const { t, isDark } = useTheme()
+  const { tl } = useLanguage()
   const { isMobile }  = useWindowSize()
 
   // Page tabs
@@ -390,7 +392,7 @@ export default function ProfilePage({ user, onLogout }) {
                 {aadhaarLinked && (
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 20, background: isDark ? 'rgba(52,211,153,0.1)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)' }}>
                     <ShieldCheck size={11} style={{ color: '#34d399' }} />
-                    <span style={{ color: '#34d399', fontSize: 10, fontWeight: 700, letterSpacing: '0.04em' }}>AADHAAR VERIFIED</span>
+                    <span style={{ color: '#34d399', fontSize: 10, fontWeight: 700, letterSpacing: '0.04em' }}>{tl('profile.aadhaarVerified')}</span>
                   </div>
                 )}
               </div>
@@ -405,7 +407,7 @@ export default function ProfilePage({ user, onLogout }) {
             border: `1px solid ${t.border}`, background: 'transparent', color: t.textSec,
             fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
           }}>
-            <Edit3 size={13} /> {editMode ? 'Cancel' : 'Edit Profile'}
+            <Edit3 size={13} /> {editMode ? 'Cancel' : tl('profile.editProfile')}
           </button>
         </div>
 
@@ -442,7 +444,7 @@ export default function ProfilePage({ user, onLogout }) {
           <>
             {/* ── Personal Info ── */}
             <div style={card}>
-              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 20px' }}>Personal Information</h2>
+              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 20px' }}>{tl('profile.myProfile')}</h2>
 
               {editMode ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -591,7 +593,7 @@ export default function ProfilePage({ user, onLogout }) {
 
             {/* ── Saved Travellers ── */}
             <div style={card}>
-              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 16 }}>Saved Travellers</h2>
+              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 16 }}>{tl('profile.savedTravellers')}</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {SAVED_TRAVELERS.map((tr, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.02)' : t.bgAlt, border: `1px solid ${t.border}` }}>
@@ -600,7 +602,7 @@ export default function ProfilePage({ user, onLogout }) {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: t.text, fontSize: 13, fontWeight: 600 }}>{tr.name}</div>
-                      <div style={{ color: t.textMuted, fontSize: 12 }}>{tr.relation} · {tr.age} yrs · {tr.gender === 'M' ? 'Male' : 'Female'}</div>
+                      <div style={{ color: t.textMuted, fontSize: 12 }}>{tr.relation} · {tr.age} yrs · {tr.gender === 'M' ? tl('booking.male') : tl('booking.female')}</div>
                     </div>
                     <button style={{ background: 'none', border: 'none', color: t.textMuted, cursor: 'pointer', padding: 4 }}>
                       <ChevronRight size={14} />
@@ -608,18 +610,18 @@ export default function ProfilePage({ user, onLogout }) {
                   </div>
                 ))}
                 <button style={{ width: '100%', padding: '11px', borderRadius: 12, border: `1px dashed ${t.border}`, background: 'transparent', color: t.textMuted, fontSize: 13, cursor: 'pointer', marginTop: 4 }}>
-                  + Add traveller
+                  + {tl('profile.addTraveller')}
                 </button>
               </div>
             </div>
 
             {/* ── Account Settings ── */}
             <div style={card}>
-              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 16 }}>Account Settings</h2>
+              <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 16 }}>{tl('profile.accountSettings')}</h2>
               {[
-                { icon: Bell,       label: 'Notifications',  sub: 'Booking updates, reminders, offers', color: '#f97316' },
-                { icon: ShieldCheck, label: 'Security',       sub: 'Password, 2FA, linked accounts',   color: '#6366f1' },
-                { icon: CreditCard, label: 'Saved Payments', sub: 'UPI IDs, saved cards',              color: '#3b82f6' },
+                { icon: Bell,       label: tl('profile.notifications'),  sub: 'Booking updates, reminders, offers', color: '#f97316' },
+                { icon: ShieldCheck, label: 'Security',                  sub: 'Password, 2FA, linked accounts',    color: '#6366f1' },
+                { icon: CreditCard, label: 'Saved Payments',             sub: 'UPI IDs, saved cards',              color: '#3b82f6' },
               ].map(({ icon: Icon, label, sub, color }) => (
                 <button key={label} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', background: 'none', border: 'none', borderBottom: `1px solid ${t.border}`, cursor: 'pointer', textAlign: 'left' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}

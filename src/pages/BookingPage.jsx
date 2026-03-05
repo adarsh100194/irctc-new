@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Lock, Plus, Minus, CheckCircle, Smartphone, CreditCard, Building2, Info, Wallet } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useWindowSize } from '../hooks/useWindowSize'
 
 const TRAINS = {
@@ -139,6 +140,7 @@ export default function BookingPage({ user, onLogout }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { t, isDark } = useTheme()
+  const { tl } = useLanguage()
   const { isMobile } = useWindowSize()
 
   const trainId = params.get('trainId') || '12951'
@@ -414,7 +416,7 @@ export default function BookingPage({ user, onLogout }) {
 
         {/* Step indicator */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-          {['Passengers', 'Payment'].map((s, i) => (
+          {[tl('booking.passengerDetails'), tl('booking.proceedToPay')].map((s, i) => (
             <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <div style={{
                 width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -455,14 +457,14 @@ export default function BookingPage({ user, onLogout }) {
               {/* ── Travellers ── */}
               <section style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <h2 style={{ color: t.text, fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>Travellers</h2>
+                  <h2 style={{ color: t.text, fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>{tl('booking.passengerDetails')}</h2>
                   {passengers.length < 6 && (
                     <button onClick={addP} style={{
                       display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8,
                       border: `1px solid ${t.border}`, background: 'transparent',
                       color: t.textSec, fontSize: 13, cursor: 'pointer',
                     }}>
-                      <Plus size={13} /> Add traveller
+                      <Plus size={13} /> {tl('booking.addPassenger')}
                     </button>
                   )}
                 </div>
@@ -493,7 +495,7 @@ export default function BookingPage({ user, onLogout }) {
                       }}>
                         {/* Name — full width on mobile */}
                         <div style={{ gridColumn: isMobile ? '1 / -1' : 'auto' }}>
-                          <label style={labelStyle}>Full Name</label>
+                          <label style={labelStyle}>{tl('booking.passengerName')}</label>
                           <input
                             value={p.name}
                             onChange={e => updateP(i, 'name', e.target.value)}
@@ -507,7 +509,7 @@ export default function BookingPage({ user, onLogout }) {
                           )}
                         </div>
                         <div>
-                          <label style={labelStyle}>Age</label>
+                          <label style={labelStyle}>{tl('booking.age')}</label>
                           <input
                             type="number" value={p.age}
                             onChange={e => updateP(i, 'age', e.target.value)}
@@ -521,12 +523,12 @@ export default function BookingPage({ user, onLogout }) {
                           )}
                         </div>
                         <div>
-                          <label style={labelStyle}>Gender</label>
+                          <label style={labelStyle}>{tl('booking.gender')}</label>
                           <select value={p.gender} onChange={e => updateP(i, 'gender', e.target.value)}
                             style={{ ...inputSt, colorScheme: isDark ? 'dark' : 'light', cursor: 'pointer' }}
                           >
-                            <option style={{ background: isDark ? '#111' : '#fff' }} value="M">Male</option>
-                            <option style={{ background: isDark ? '#111' : '#fff' }} value="F">Female</option>
+                            <option style={{ background: isDark ? '#111' : '#fff' }} value="M">{tl('booking.male')}</option>
+                            <option style={{ background: isDark ? '#111' : '#fff' }} value="F">{tl('booking.female')}</option>
                             <option style={{ background: isDark ? '#111' : '#fff' }} value="O">Other</option>
                           </select>
                         </div>
@@ -694,7 +696,7 @@ export default function BookingPage({ user, onLogout }) {
                 onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
                 onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               >
-                Continue to Payment →
+                {tl('booking.proceedToPay')} →
               </button>
             </>
           )}
@@ -805,10 +807,10 @@ export default function BookingPage({ user, onLogout }) {
 
             {/* Fare breakdown */}
             {[
-              [`Base × ${passengers.length}`, `₹${base}`],
-              ['Reservation charge', `₹${reservFee}`],
-              ['GST & taxes (5%)', `₹${taxes}`],
-              ['Service fee', `₹${serviceFee}`],
+              [`${tl('booking.baseFare')} × ${passengers.length}`, `₹${base}`],
+              [tl('booking.reservationCharge'), `₹${reservFee}`],
+              [tl('booking.gst'), `₹${taxes}`],
+              [tl('booking.superFastCharge'), `₹${serviceFee}`],
               ...(addInsurance ? [[`Insurance × ${passengers.length}`, `₹${insuranceFee}`]] : []),
             ].map(([l, v]) => (
               <div key={l} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -818,7 +820,7 @@ export default function BookingPage({ user, onLogout }) {
             ))}
 
             <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: 14, marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: t.text, fontWeight: 700, fontSize: 15 }}>Total</span>
+              <span style={{ color: t.text, fontWeight: 700, fontSize: 15 }}>{tl('booking.totalFare')}</span>
               <span style={{ color: t.accent, fontWeight: 900, fontSize: 22 }}>₹{total}</span>
             </div>
 

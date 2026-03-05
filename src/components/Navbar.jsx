@@ -1,20 +1,37 @@
-import { Bell, ChevronDown, LogOut, Sun, Moon, User, BookOpen, ShieldCheck, Menu, X } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, Sun, Moon, User, BookOpen, ShieldCheck, Menu, X, Globe } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useWindowSize } from '../hooks/useWindowSize'
-
-const NAV_LINKS = ['Trains', 'Hotels', 'Flights', 'Holidays']
-const NAV_ICONS = { Trains: '🚂', Hotels: '🏨', Flights: '✈️', Holidays: '🌴' }
 
 export default function Navbar({ user, onLogout }) {
   const [drop,       setDrop]       = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [langOpen,   setLangOpen]   = useState(false)
   const navigate  = useNavigate()
   const { t, toggle, isDark } = useTheme()
+  const { tl, lang, setLang, languages } = useLanguage()
   const { isMobile } = useWindowSize()
 
+  const NAV_LINKS = [
+    { key: 'nav.trains',   icon: '🚂' },
+    { key: 'nav.hotels',   icon: '🏨' },
+    { key: 'nav.flights',  icon: '✈️' },
+    { key: 'nav.holidays', icon: '🌴' },
+  ]
+
   const closeMobile = () => setMobileOpen(false)
+
+  const iconBtn = {
+    width: 34, height: 34, borderRadius: 10, cursor: 'pointer',
+    border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)'}`,
+    background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#ffffff', transition: 'all 0.2s',
+  }
+
+  const currentLang = languages.find(l => l.code === lang)
 
   return (
     <>
@@ -43,12 +60,12 @@ export default function Navbar({ user, onLogout }) {
         {/* Desktop nav links */}
         {!isMobile && (
           <div style={{ display: 'flex', gap: 2, flex: 1 }}>
-            {NAV_LINKS.map(l => (
-              <button key={l} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, color: t.navText, background: 'transparent', fontWeight: 500 }}
+            {NAV_LINKS.map(({ key }) => (
+              <button key={key} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, color: t.navText, background: 'transparent', fontWeight: 500 }}
                 onMouseEnter={e => e.target.style.color = t.navTextActive}
                 onMouseLeave={e => e.target.style.color = t.navText}
               >
-                {l}
+                {tl(key)}
               </button>
             ))}
           </div>
@@ -58,18 +75,70 @@ export default function Navbar({ user, onLogout }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
 
           {/* Theme toggle */}
-          <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} style={{
-            width: 34, height: 34, borderRadius: 10, cursor: 'pointer',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)'}`,
-            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#ffffff', transition: 'all 0.2s',
-          }}
+          <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} style={iconBtn}
             onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)'}
             onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)'}
           >
             {isDark ? <Sun size={14} /> : <Moon size={14} />}
           </button>
+
+          {/* Language picker */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setLangOpen(o => !o); setDrop(false) }}
+              title={tl('lang.select')}
+              style={{ ...iconBtn, gap: 4, paddingInline: 8, width: 'auto', minWidth: 34 }}
+              onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)'}
+            >
+              <Globe size={14} />
+              {!isMobile && (
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', letterSpacing: '0.01em' }}>
+                  {currentLang?.nativeName}
+                </span>
+              )}
+            </button>
+
+            {langOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={() => setLangOpen(false)} />
+                <div style={{
+                  position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                  width: 260, background: t.surfaceSolid,
+                  border: `1px solid ${t.border}`, borderRadius: 14,
+                  zIndex: 50, boxShadow: t.shadow, overflow: 'hidden',
+                }}>
+                  <div style={{ padding: '10px 14px 8px', borderBottom: `1px solid ${t.border}` }}>
+                    <span style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                      {tl('lang.select')}
+                    </span>
+                  </div>
+                  <div style={{ padding: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    {languages.map(l => (
+                      <button
+                        key={l.code}
+                        onClick={() => { setLang(l.code); setLangOpen(false) }}
+                        style={{
+                          textAlign: 'left', padding: '8px 10px', borderRadius: 8,
+                          border: lang === l.code ? `1px solid ${t.accentBorder}` : '1px solid transparent',
+                          cursor: 'pointer',
+                          background: lang === l.code ? t.accentDim : 'transparent',
+                          transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { if (lang !== l.code) e.currentTarget.style.background = t.surfaceHover }}
+                        onMouseLeave={e => { if (lang !== l.code) e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <div style={{ color: lang === l.code ? t.accent : t.text, fontSize: 13, fontWeight: lang === l.code ? 700 : 500 }}>
+                          {l.nativeName}
+                        </div>
+                        <div style={{ color: t.textMuted, fontSize: 10, marginTop: 1 }}>{l.name}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Bell (desktop only) */}
           {!isMobile && (
@@ -82,7 +151,7 @@ export default function Navbar({ user, onLogout }) {
           {/* Desktop user dropdown */}
           {!isMobile && (
             <div style={{ position: 'relative' }}>
-              <button onClick={() => setDrop(!drop)} style={{
+              <button onClick={() => { setDrop(!drop); setLangOpen(false) }} style={{
                 display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 5px 7px',
                 borderRadius: 10, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.25)'}`,
                 background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)', cursor: 'pointer',
@@ -119,14 +188,14 @@ export default function Navbar({ user, onLogout }) {
                     </div>
                     <div style={{ padding: 6 }}>
                       {[
-                        { label: 'My Profile',  icon: User,     path: '/profile'  },
-                        { label: 'My Bookings', icon: BookOpen,  path: '/bookings' },
-                      ].map(({ label, icon: Icon, path }) => (
-                        <button key={label} onClick={() => { setDrop(false); navigate(path) }} style={{ width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'transparent', color: t.textSec, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}
+                        { labelKey: 'nav.profile',    icon: User,    path: '/profile'  },
+                        { labelKey: 'nav.myBookings', icon: BookOpen, path: '/bookings' },
+                      ].map(({ labelKey, icon: Icon, path }) => (
+                        <button key={labelKey} onClick={() => { setDrop(false); navigate(path) }} style={{ width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', background: 'transparent', color: t.textSec, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}
                           onMouseEnter={e => e.currentTarget.style.background = t.surfaceHover}
                           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                         >
-                          <Icon size={13} style={{ color: t.textMuted }} /> {label}
+                          <Icon size={13} style={{ color: t.textMuted }} /> {tl(labelKey)}
                         </button>
                       ))}
                       <div style={{ borderTop: `1px solid ${t.border}`, margin: '4px 0' }} />
@@ -134,7 +203,7 @@ export default function Navbar({ user, onLogout }) {
                         onMouseEnter={e => e.currentTarget.style.background = t.redDim}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        <LogOut size={13} /> Sign out
+                        <LogOut size={13} /> {tl('nav.signOut')}
                       </button>
                     </div>
                   </div>
@@ -173,6 +242,7 @@ export default function Navbar({ user, onLogout }) {
             backdropFilter: isDark ? 'blur(24px)' : 'none',
             borderBottom: `1px solid ${t.navBorder}`,
             boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+            maxHeight: 'calc(100vh - 56px)', overflowY: 'auto',
           }}>
             {/* User identity strip */}
             <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -194,10 +264,10 @@ export default function Navbar({ user, onLogout }) {
             {/* Nav links */}
             <div style={{ padding: '8px 8px 4px' }}>
               <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '6px 10px 4px' }}>
-                Services
+                {tl('nav.services')}
               </div>
-              {NAV_LINKS.map(link => (
-                <button key={link} onClick={() => { closeMobile(); navigate('/home') }} style={{
+              {NAV_LINKS.map(({ key, icon }) => (
+                <button key={key} onClick={() => { closeMobile(); navigate('/home') }} style={{
                   width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 12px', borderRadius: 10, border: 'none', cursor: 'pointer',
                   background: 'transparent', color: '#ffffff', fontSize: 14, fontWeight: 500,
@@ -206,26 +276,25 @@ export default function Navbar({ user, onLogout }) {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{NAV_ICONS[link]}</span>
-                  {link}
+                  <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{icon}</span>
+                  {tl(key)}
                 </button>
               ))}
             </div>
 
             {/* Account links */}
-            <div style={{ padding: '4px 8px 8px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ padding: '4px 8px 4px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', padding: '10px 10px 4px' }}>
-                Account
+                {tl('nav.account')}
               </div>
               {[
-                { label: 'My Profile',  icon: User,     path: '/profile'  },
-                { label: 'My Bookings', icon: BookOpen,  path: '/bookings' },
-              ].map(({ label, icon: Icon, path }) => (
-                <button key={label} onClick={() => { closeMobile(); navigate(path) }} style={{
+                { labelKey: 'nav.profile',    icon: User,    path: '/profile'  },
+                { labelKey: 'nav.myBookings', icon: BookOpen, path: '/bookings' },
+              ].map(({ labelKey, icon: Icon, path }) => (
+                <button key={labelKey} onClick={() => { closeMobile(); navigate(path) }} style={{
                   width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12,
                   padding: '12px 12px', borderRadius: 10, border: 'none', cursor: 'pointer',
                   background: 'transparent', color: '#ffffff', fontSize: 14, fontWeight: 500,
-                  transition: 'background 0.1s',
                 }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -233,14 +302,41 @@ export default function Navbar({ user, onLogout }) {
                   <span style={{ width: 24, display: 'flex', justifyContent: 'center' }}>
                     <Icon size={16} style={{ color: 'rgba(255,255,255,0.6)' }} />
                   </span>
-                  {label}
+                  {tl(labelKey)}
                 </button>
               ))}
+
+              {/* Language picker row in mobile menu */}
+              <div style={{ padding: '8px 12px 4px', marginTop: 4, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  {tl('lang.select')}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  {languages.map(l => (
+                    <button
+                      key={l.code}
+                      onClick={() => { setLang(l.code); closeMobile() }}
+                      style={{
+                        textAlign: 'left', padding: '8px 10px', borderRadius: 8,
+                        border: lang === l.code ? `1px solid rgba(249,115,22,0.5)` : '1px solid rgba(255,255,255,0.1)',
+                        cursor: 'pointer',
+                        background: lang === l.code ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.04)',
+                      }}
+                    >
+                      <div style={{ color: lang === l.code ? '#f97316' : '#fff', fontSize: 13, fontWeight: lang === l.code ? 700 : 400 }}>
+                        {l.nativeName}
+                      </div>
+                      <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10 }}>{l.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <button onClick={() => { closeMobile(); onLogout(); navigate('/') }} style={{
                 width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12,
                 padding: '12px 12px', borderRadius: 10, border: 'none', cursor: 'pointer',
                 background: 'transparent', color: '#ef4444', fontSize: 14, fontWeight: 500,
-                transition: 'background 0.1s',
+                marginTop: 4,
               }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -248,7 +344,7 @@ export default function Navbar({ user, onLogout }) {
                 <span style={{ width: 24, display: 'flex', justifyContent: 'center' }}>
                   <LogOut size={16} style={{ color: '#ef4444' }} />
                 </span>
-                Sign out
+                {tl('nav.signOut')}
               </button>
             </div>
           </div>

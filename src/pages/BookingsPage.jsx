@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import Navbar from '../components/Navbar'
 import { Train, ArrowRight, Calendar, CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, Download } from 'lucide-react'
 import { MOCK_BOOKINGS } from '../data/mockData'
@@ -14,6 +15,7 @@ const STATUS_CONFIG = {
 
 export default function BookingsPage({ user, onLogout }) {
   const { t, isDark } = useTheme()
+  const { tl } = useLanguage()
   const [activeTab, setActiveTab] = useState('All')
   const [expanded, setExpanded] = useState(null)
 
@@ -44,7 +46,7 @@ export default function BookingsPage({ user, onLogout }) {
 
         {/* Header */}
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.04em', marginBottom: 4 }}>My Bookings</h1>
+          <h1 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.04em', marginBottom: 4 }}>{tl('bookings.myBookings')}</h1>
           <p style={{ color: t.textSec, fontSize: 14 }}>{MOCK_BOOKINGS.length} bookings · {MOCK_BOOKINGS.filter(b => b.upcoming).length} upcoming</p>
         </div>
 
@@ -55,6 +57,10 @@ export default function BookingsPage({ user, onLogout }) {
               : tab === 'Upcoming' ? MOCK_BOOKINGS.filter(b => b.upcoming && b.status !== 'Cancelled').length
               : tab === 'Past' ? MOCK_BOOKINGS.filter(b => !b.upcoming && b.status !== 'Cancelled').length
               : MOCK_BOOKINGS.filter(b => b.status === 'Cancelled').length
+            const tabLabel = tab === 'All' ? tab
+              : tab === 'Upcoming' ? tl('bookings.upcoming')
+              : tab === 'Past' ? tl('bookings.past')
+              : tl('bookings.cancelled')
             return (
               <button key={tab} onClick={() => setActiveTab(tab)} style={{
                 flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
@@ -63,7 +69,7 @@ export default function BookingsPage({ user, onLogout }) {
                 color: activeTab === tab ? (isDark ? '#f97316' : 'white') : t.textSec,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
-                {tab}
+                {tabLabel}
                 <span style={{
                   padding: '1px 7px', borderRadius: 20, fontSize: 11, fontWeight: 700,
                   background: activeTab === tab ? (isDark ? 'rgba(249,115,22,0.3)' : 'rgba(255,255,255,0.25)') : (isDark ? 'rgba(255,255,255,0.06)' : t.pill),
@@ -78,7 +84,7 @@ export default function BookingsPage({ user, onLogout }) {
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: t.textMuted }}>
             <Train size={40} style={{ marginBottom: 16, opacity: 0.3 }} />
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>No bookings here</div>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{activeTab === 'Upcoming' ? tl('bookings.noUpcoming') : activeTab === 'Past' ? tl('bookings.noPast') : 'No bookings here'}</div>
             <div style={{ fontSize: 13 }}>Your {activeTab.toLowerCase()} bookings will appear here</div>
           </div>
         ) : (
@@ -154,7 +160,7 @@ export default function BookingsPage({ user, onLogout }) {
                       onClick={() => setExpanded(isExpanded ? null : booking.pnr)}
                       style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: t.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 0' }}
                     >
-                      {isExpanded ? 'Hide details' : 'View details'}
+                      {isExpanded ? 'Hide details' : tl('bookings.viewDetails')}
                       {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                     </button>
                   </div>
@@ -165,7 +171,7 @@ export default function BookingsPage({ user, onLogout }) {
                   <div style={{ background: isDark ? 'rgba(255,255,255,0.02)' : t.bgAlt, borderTop: `1px solid ${t.border}`, padding: '18px 22px' }}>
                     {/* Passenger list */}
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ color: t.textMuted, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Passengers</div>
+                      <div style={{ color: t.textMuted, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{tl('bookings.passenger')}</div>
                       {booking.passengers.map((p, i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: `1px solid ${t.border}` }}>
                           <div>
@@ -185,11 +191,11 @@ export default function BookingsPage({ user, onLogout }) {
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: 10 }}>
                       <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, border: `1px solid ${t.border}`, background: 'transparent', color: t.textSec, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                        <Download size={12} /> Download Ticket
+                        <Download size={12} /> {tl('bookings.downloadTicket')}
                       </button>
                       {booking.upcoming && booking.status !== 'Cancelled' && (
                         <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, border: `1px solid ${t.red}30`, background: t.redDim, color: t.red, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                          Cancel Booking
+                          {tl('bookings.cancelTicket')}
                         </button>
                       )}
                     </div>

@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, ArrowRight, ArrowLeft, Sun, Moon, Smartphone, Fingerprint, ShieldCheck, X } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, ArrowLeft, Sun, Moon, Smartphone, Fingerprint, ShieldCheck, X, Globe } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useWindowSize } from '../hooks/useWindowSize'
 
 const MOCK = { username: 'testuser', password: 'test@123', name: 'Adarsh Mohan' }
+
+const TESTIMONIALS = [
+  { quote: "Finally, booking a train doesn't feel like filling a tax return.", name: 'Priya K.', city: 'Mumbai', role: 'Frequent traveller', initial: 'P', grad: 'linear-gradient(135deg,#f97316,#6366f1)' },
+  { quote: "The new interface is clean and fast. Booked Rajdhani in under 2 minutes.", name: 'Rajan M.', city: 'Chennai', role: 'Business traveller', initial: 'R', grad: 'linear-gradient(135deg,#0ea5e9,#6366f1)' },
+  { quote: "Love the dark mode! Booking late-night tickets is so much easier now.", name: 'Sneha D.', city: 'Pune', role: 'Student', initial: 'S', grad: 'linear-gradient(135deg,#8b5cf6,#ec4899)' },
+  { quote: "PNR tracking and seat info all in one place. No more confusion!", name: 'Arjun T.', city: 'Kolkata', role: 'Regular commuter', initial: 'A', grad: 'linear-gradient(135deg,#10b981,#0ea5e9)' },
+  { quote: "Cancelled a ticket and got refund info instantly. Very impressed.", name: 'Meera B.', city: 'Bengaluru', role: 'Software engineer', initial: 'M', grad: 'linear-gradient(135deg,#f59e0b,#f97316)' },
+  { quote: "The festival travel suggestions are spot on. Planned my Durga Puja trip easily.", name: 'Souvik G.', city: 'Bhubaneswar', role: 'Holiday planner', initial: 'S', grad: 'linear-gradient(135deg,#ef4444,#f97316)' },
+]
 
 /* ─────────────────────────────────────────────────────
    Simplified Ashoka Lion Capital — India's National Emblem
@@ -67,7 +77,22 @@ export default function LoginPage({ onLogin }) {
   const [done,  setDone]      = useState(false)
   const navigate  = useNavigate()
   const { t, toggle, isDark } = useTheme()
+  const { tl, lang, setLang, languages } = useLanguage()
   const { isMobile } = useWindowSize()
+  const [langOpen, setLangOpen] = useState(false)
+
+  /* Testimonials carousel */
+  const [testimonialIdx, setTestimonialIdx] = useState(0)
+  const testimonialTimer = useRef(null)
+  const resetTestimonialTimer = (idx) => {
+    clearInterval(testimonialTimer.current)
+    testimonialTimer.current = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 4500)
+    if (idx !== undefined) setTestimonialIdx(idx)
+  }
+  useEffect(() => {
+    testimonialTimer.current = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 4500)
+    return () => clearInterval(testimonialTimer.current)
+  }, [])
 
   /* Auth method: 'credentials' | 'mobile' | 'aadhaar' */
   /* Demo credentials toast */
@@ -187,16 +212,47 @@ export default function LoginPage({ onLogin }) {
           </div>
         )}
 
-        {/* Right: theme toggle */}
-        <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} style={{
-          width: 30, height: 30, borderRadius: 8, cursor: 'pointer',
-          border: '1px solid rgba(255,255,255,0.18)',
-          background: 'rgba(255,255,255,0.08)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'rgba(255,255,255,0.75)', flexShrink: 0,
-        }}>
-          {isDark ? <Sun size={13} /> : <Moon size={13} />}
-        </button>
+        {/* Right: language picker + theme toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+
+          {/* Language picker */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setLangOpen(o => !o)}
+              style={{ height: 30, borderRadius: 8, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, paddingInline: 8, color: 'rgba(255,255,255,0.75)' }}
+            >
+              <Globe size={12} />
+              {!isMobile && <span style={{ fontSize: 11, fontWeight: 600 }}>{languages.find(l => l.code === lang)?.nativeName}</span>}
+            </button>
+            {langOpen && (
+              <>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 98 }} onClick={() => setLangOpen(false)} />
+                <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', width: 252, background: '#0a1628', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, zIndex: 99, boxShadow: '0 12px 40px rgba(0,0,0,0.5)', overflow: 'hidden' }}>
+                  <div style={{ padding: '9px 13px 7px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{tl('lang.select')}</span>
+                  </div>
+                  <div style={{ padding: 7, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
+                    {languages.map(l => (
+                      <button key={l.code} onClick={() => { setLang(l.code); setLangOpen(false) }}
+                        style={{ textAlign: 'left', padding: '7px 9px', borderRadius: 8, border: lang === l.code ? '1px solid rgba(249,115,22,0.5)' : '1px solid transparent', cursor: 'pointer', background: lang === l.code ? 'rgba(249,115,22,0.15)' : 'transparent' }}
+                        onMouseEnter={e => { if (lang !== l.code) e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                        onMouseLeave={e => { if (lang !== l.code) e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <div style={{ color: lang === l.code ? '#f97316' : 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: lang === l.code ? 700 : 400 }}>{l.nativeName}</div>
+                        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10 }}>{l.name}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Theme toggle */}
+          <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} style={{ width: 30, height: 30, borderRadius: 8, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.75)' }}>
+            {isDark ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
+        </div>
       </div>
 
       {/* ═══════════════════════════════════════════════════════
@@ -235,18 +291,18 @@ export default function LoginPage({ onLogin }) {
                 </div>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', marginTop: 4 }}>
-                <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: 10, fontWeight: 600 }}>A Government of India Enterprise</span>
+                <span style={{ color: 'rgba(255,255,255,0.72)', fontSize: 10, fontWeight: 600 }}>{tl('login.govEnterprise')}</span>
               </div>
             </div>
 
             {/* Hero tagline */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingTop: 36, paddingBottom: 28 }}>
               <p style={{ color: isDark ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.52)', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14 }}>
-                Connecting India since 1853
+                {tl('login.connecting')}
               </p>
               <h1 style={{ fontSize: 'clamp(2.2rem, 3.5vw, 3rem)', fontWeight: 900, color: 'white', lineHeight: 1.08, letterSpacing: '-0.04em', marginBottom: 16 }}>
-                Your journey.<br />
-                <span style={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.52)' }}>Nation's pride.</span>
+                {tl('login.tagline1')}<br />
+                <span style={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.52)' }}>{tl('login.tagline2')}</span>
               </h1>
               <p style={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.62)', fontSize: 14.5, lineHeight: 1.75, maxWidth: 340 }}>
                 Book 13,000+ trains across every corner of India. Fast, secure, and officially powered by the Ministry of Railways.
@@ -280,17 +336,40 @@ export default function LoginPage({ onLogin }) {
                 ))}
               </div>
 
-              {/* Testimonial */}
+              {/* Testimonials carousel */}
               <div style={{ background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.1)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.22)'}`, borderRadius: 16, padding: '16px 20px' }}>
-                <p style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.75)', fontSize: 13.5, lineHeight: 1.65, marginBottom: 10 }}>
-                  "Finally, booking a train doesn't feel like filling a tax return."
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 11, fontWeight: 700 }}>P</div>
-                  <div>
-                    <div style={{ color: isDark ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.88)', fontSize: 13, fontWeight: 600 }}>Priya K.</div>
-                    <div style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.52)', fontSize: 11 }}>Frequent traveller · Mumbai</div>
+                {/* Animated testimonial body */}
+                <div key={testimonialIdx} style={{ animation: 'fadeIn 0.4s ease' }}>
+                  <p style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.75)', fontSize: 13.5, lineHeight: 1.65, marginBottom: 10 }}>
+                    "{TESTIMONIALS[testimonialIdx].quote}"
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: TESTIMONIALS[testimonialIdx].grad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                      {TESTIMONIALS[testimonialIdx].initial}
+                    </div>
+                    <div>
+                      <div style={{ color: isDark ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.88)', fontSize: 13, fontWeight: 600 }}>{TESTIMONIALS[testimonialIdx].name}</div>
+                      <div style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.52)', fontSize: 11 }}>{TESTIMONIALS[testimonialIdx].role} · {TESTIMONIALS[testimonialIdx].city}</div>
+                    </div>
                   </div>
+                </div>
+                {/* Dot indicators */}
+                <div style={{ display: 'flex', gap: 5, marginTop: 12, justifyContent: 'center' }}>
+                  {TESTIMONIALS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => resetTestimonialTimer(i)}
+                      style={{
+                        width: i === testimonialIdx ? 16 : 6,
+                        height: 6, borderRadius: 3,
+                        background: i === testimonialIdx
+                          ? (isDark ? 'rgba(249,115,22,0.8)' : 'rgba(255,255,255,0.85)')
+                          : (isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.4)'),
+                        border: 'none', cursor: 'pointer', padding: 0,
+                        transition: 'width 0.3s ease, background 0.3s ease',
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
@@ -321,7 +400,7 @@ export default function LoginPage({ onLogin }) {
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 32, background: t.surface, borderRadius: 14, padding: 5, border: `1px solid ${t.border}` }}>
-              {[['login', 'Sign in'], ['signup', 'Create account']].map(([t2, l]) => (
+              {[['login', tl('login.signIn')], ['signup', tl('login.createAccount')]].map(([t2, l]) => (
                 <button key={t2} onClick={() => { setTab(t2); setError(''); resetAlt() }} style={{
                   flex: 1, padding: '9px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
                   fontSize: 13, fontWeight: 600, transition: 'all 0.15s',
@@ -336,16 +415,16 @@ export default function LoginPage({ onLogin }) {
                 {/* ── CREDENTIALS ── */}
                 {authMethod === 'credentials' && (
                   <form onSubmit={login}>
-                    <h2 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>Welcome back</h2>
-                    <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>Sign in to your IRCTC account</p>
+                    <h2 style={{ color: t.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>{tl('login.welcomeBack')}</h2>
+                    <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>{tl('login.signInSubtitle')}</p>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       <div>
-                        <label style={labelSt}>User ID / Username</label>
+                        <label style={labelSt}>{tl('login.userId')}</label>
                         <input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} placeholder="testuser" required style={iStyle} autoComplete="username" />
                       </div>
                       <div>
-                        <label style={labelSt}>Password</label>
+                        <label style={labelSt}>{tl('login.password')}</label>
                         <div style={{ position: 'relative' }}>
                           <input type={showPass ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" required style={iStyle} autoComplete="current-password" />
                           <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 0 }}>
@@ -356,25 +435,25 @@ export default function LoginPage({ onLogin }) {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '10px 0 22px' }}>
-                      <a href="#" style={{ color: t.accent, fontSize: 13, textDecoration: 'none' }}>Forgot password?</a>
+                      <a href="#" style={{ color: t.accent, fontSize: 13, textDecoration: 'none' }}>{tl('login.forgotPassword')}</a>
                     </div>
 
                     {error && <ErrBox msg={error} t={t} />}
 
-                    <button type="submit" style={btnPrimary}>Sign in <ArrowRight size={14} /></button>
+                    <button type="submit" style={btnPrimary}>{tl('login.signIn')} <ArrowRight size={14} /></button>
 
                     {/* Divider */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0 16px' }}>
                       <div style={{ flex: 1, height: 1, background: t.border }} />
-                      <span style={{ color: t.textMuted, fontSize: 12, fontWeight: 600 }}>or continue with</span>
+                      <span style={{ color: t.textMuted, fontSize: 12, fontWeight: 600 }}>{tl('login.orSignInWith')}</span>
                       <div style={{ flex: 1, height: 1, background: t.border }} />
                     </div>
 
                     {/* Alt auth buttons */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {[
-                        { method: 'mobile',  Icon: Smartphone,  label: 'Mobile OTP',  sub: 'SMS one-time password',     color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.15)'  : '#eef2ff' },
-                        { method: 'aadhaar', Icon: Fingerprint,  label: 'Aadhaar OTP', sub: '12-digit Aadhaar + OTP',  color: '#34d399', bg: isDark ? 'rgba(52,211,153,0.12)'  : '#ecfdf5' },
+                        { method: 'mobile',  Icon: Smartphone,  label: tl('login.mobileOtp'),  sub: 'SMS one-time password',    color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.15)'  : '#eef2ff' },
+                        { method: 'aadhaar', Icon: Fingerprint,  label: tl('login.aadhaarOtp'), sub: '12-digit Aadhaar + OTP', color: '#34d399', bg: isDark ? 'rgba(52,211,153,0.12)'  : '#ecfdf5' },
                       ].map(({ method, Icon, label, sub, color, bg }) => (
                         <button key={method} type="button" onClick={() => { setAuthMethod(method); setError('') }} style={{
                           width: '100%', padding: '11px 16px', borderRadius: 12,
@@ -557,7 +636,7 @@ export default function LoginPage({ onLogin }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 14 }}>🔑</span>
-              <span style={{ color: t.textMuted, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Demo Credentials</span>
+              <span style={{ color: t.textMuted, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}>{tl('login.demoCredentials')}</span>
             </div>
             <button onClick={() => setShowDemoToast(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 2, display: 'flex', borderRadius: 6 }}
               onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'}
@@ -570,12 +649,12 @@ export default function LoginPage({ onLogin }) {
           {/* Credentials */}
           <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
             <div>
-              <div style={{ color: t.textMuted, fontSize: 9.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Username</div>
+              <div style={{ color: t.textMuted, fontSize: 9.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>{tl('login.userId')}</div>
               <div style={{ color: t.text, fontWeight: 800, fontSize: 15, fontFamily: 'monospace', letterSpacing: '0.02em' }}>testuser</div>
             </div>
             <div style={{ width: 1, background: t.border, alignSelf: 'stretch' }} />
             <div>
-              <div style={{ color: t.textMuted, fontSize: 9.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Password</div>
+              <div style={{ color: t.textMuted, fontSize: 9.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>{tl('login.password')}</div>
               <div style={{ color: t.text, fontWeight: 800, fontSize: 15, fontFamily: 'monospace', letterSpacing: '0.02em' }}>test@123</div>
             </div>
           </div>
@@ -592,7 +671,7 @@ export default function LoginPage({ onLogin }) {
             onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(249,115,22,0.2)' : '#fed7aa'}
             onMouseLeave={e => e.currentTarget.style.background = t.accentDim}
           >
-            ⚡ Auto-fill & sign in
+            ⚡ {tl('login.autofill')}
           </button>
         </div>
       )}
