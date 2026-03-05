@@ -370,7 +370,7 @@ export default function LoginPage({ onLogin }) {
                 {/* Animated testimonial body */}
                 <div key={testimonialIdx} style={{ animation: 'fadeIn 0.4s ease' }}>
                   <p style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.75)', fontSize: 13.5, lineHeight: 1.65, marginBottom: 10 }}>
-                    "{TESTIMONIALS[testimonialIdx].quote}"
+                    "{tl(`login.testimonial${testimonialIdx}.quote`)}"
                   </p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 28, height: 28, borderRadius: '50%', background: TESTIMONIALS[testimonialIdx].grad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
@@ -378,7 +378,7 @@ export default function LoginPage({ onLogin }) {
                     </div>
                     <div>
                       <div style={{ color: isDark ? 'rgba(255,255,255,0.62)' : 'rgba(255,255,255,0.88)', fontSize: 13, fontWeight: 600 }}>{TESTIMONIALS[testimonialIdx].name}</div>
-                      <div style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.52)', fontSize: 11 }}>{TESTIMONIALS[testimonialIdx].role} · {TESTIMONIALS[testimonialIdx].city}</div>
+                      <div style={{ color: isDark ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.52)', fontSize: 11 }}>{tl(`login.testimonial${testimonialIdx}.role`)} · {tl(`login.testimonial${testimonialIdx}.city`)}</div>
                     </div>
                   </div>
                 </div>
@@ -500,8 +500,8 @@ export default function LoginPage({ onLogin }) {
                           </div>
                         </div>
                         <div>
-                          <div style={{ color: t.text, fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>OTP Sign in</div>
-                          <div style={{ color: t.textMuted, fontSize: 11 }}>Mobile · Aadhaar · Virtual ID</div>
+                          <div style={{ color: t.text, fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>{tl('login.otpSignIn')}</div>
+                          <div style={{ color: t.textMuted, fontSize: 11 }}>{tl('login.mobileTab')} · {tl('login.aadhaarTab')} · {tl('login.vidTab')}</div>
                         </div>
                         <ArrowRight size={12} style={{ color: t.textMuted, marginLeft: 'auto' }} />
                       </button>
@@ -532,15 +532,15 @@ export default function LoginPage({ onLogin }) {
                 {authMethod === 'otp' && (
                   <div>
                     <BackBtn onClick={resetAlt} t={t} />
-                    <h2 style={{ color: t.text, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>OTP Sign in</h2>
-                    <p style={{ color: t.textSec, fontSize: 13, marginBottom: 20 }}>Choose your verification method</p>
+                    <h2 style={{ color: t.text, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>{tl('login.otpSignIn')}</h2>
+                    <p style={{ color: t.textSec, fontSize: 13, marginBottom: 20 }}>{tl('login.chooseMethod')}</p>
 
                     {/* ── 3-tab type switcher ── */}
                     <div style={{ display: 'flex', gap: 0, marginBottom: 24, background: t.surface, borderRadius: 12, padding: 4, border: `1px solid ${t.border}` }}>
                       {[
-                        { key: 'mobile',  label: 'Mobile',     Icon: Smartphone },
-                        { key: 'aadhaar', label: 'Aadhaar',    Icon: Fingerprint },
-                        { key: 'vid',     label: 'Virtual ID', Icon: ShieldCheck },
+                        { key: 'mobile',  label: tl('login.mobileTab'),  Icon: Smartphone },
+                        { key: 'aadhaar', label: tl('login.aadhaarTab'), Icon: Fingerprint },
+                        { key: 'vid',     label: tl('login.vidTab'),     Icon: ShieldCheck },
                       ].map(({ key, label, Icon }) => (
                         <button key={key} type="button" onClick={() => switchOtpType(key)} style={{
                           flex: 1, padding: '8px 4px', borderRadius: 9, border: 'none', cursor: 'pointer',
@@ -560,7 +560,7 @@ export default function LoginPage({ onLogin }) {
                       !mobileOtpSent ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                           <div>
-                            <label style={labelSt}>Mobile Number</label>
+                            <label style={labelSt}>{tl('login.mobileNum')}</label>
                             <div style={{ display: 'flex', gap: 10 }}>
                               <div style={{ padding: '12px 14px', borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.input, color: t.textSec, fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>🇮🇳 +91</div>
                               <input value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="98765 43210" style={{ ...iStyle, flex: 1 }} inputMode="numeric" />
@@ -592,7 +592,7 @@ export default function LoginPage({ onLogin }) {
                       !aadhaarOtpSent ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                           <div>
-                            <label style={labelSt}>Aadhaar Number</label>
+                            <label style={labelSt}>{tl('login.aadhaarNum')}</label>
                             <input value={aadhaar} onChange={e => setAadhaar(fmtAadhaar(e.target.value))} placeholder="XXXX XXXX XXXX" style={iStyle} maxLength={14} inputMode="numeric" />
                             <div style={{ color: t.textMuted, fontSize: 11, marginTop: 6 }}>🔒 Encrypted end-to-end · Never stored on our servers</div>
                           </div>
@@ -622,7 +622,7 @@ export default function LoginPage({ onLogin }) {
                       !vidOtpSent ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                           <div>
-                            <label style={labelSt}>Virtual ID (VID)</label>
+                            <label style={labelSt}>{tl('login.vidLabel')}</label>
                             <input value={vid} onChange={e => setVid(fmtVid(e.target.value))} placeholder="XXXX XXXX XXXX XXXX" style={iStyle} maxLength={19} inputMode="numeric" />
                             <div style={{ color: t.textMuted, fontSize: 11, marginTop: 6 }}>16-digit VID generated from UIDAI · Replaces Aadhaar number</div>
                           </div>

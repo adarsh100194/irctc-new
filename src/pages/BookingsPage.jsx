@@ -84,7 +84,7 @@ export default function BookingsPage({ user, onLogout }) {
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: t.textMuted }}>
             <Train size={40} style={{ marginBottom: 16, opacity: 0.3 }} />
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{activeTab === 'Upcoming' ? tl('bookings.noUpcoming') : activeTab === 'Past' ? tl('bookings.noPast') : 'No bookings here'}</div>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{activeTab === 'Upcoming' ? tl('bookings.noUpcoming') : activeTab === 'Past' ? tl('bookings.noPast') : tl('bookings.noBookings')}</div>
             <div style={{ fontSize: 13 }}>Your {activeTab.toLowerCase()} bookings will appear here</div>
           </div>
         ) : (
@@ -160,7 +160,7 @@ export default function BookingsPage({ user, onLogout }) {
                       onClick={() => setExpanded(isExpanded ? null : booking.pnr)}
                       style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: t.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 0' }}
                     >
-                      {isExpanded ? 'Hide details' : tl('bookings.viewDetails')}
+                      {isExpanded ? tl('bookings.hideDetails') : tl('bookings.viewDetails')}
                       {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                     </button>
                   </div>

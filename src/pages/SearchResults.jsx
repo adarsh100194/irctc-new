@@ -229,12 +229,12 @@ export default function SearchResults({ user, onLogout }) {
 
         {/* ── Smart Picks ── */}
         <div style={{ marginBottom: 24 }}>
-          <p style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>Smart picks</p>
+          <p style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>{tl('search.smartPicks')}</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {[
-              { label: 'Fastest',   icon: '⚡', train: fastest,  sub: fmtDuration(fastest.duration), accent: '#f97316' },
-              { label: 'Cheapest',  icon: '💰', train: cheapest, sub: `₹${cheapest.price.SL}`,       accent: '#10b981' },
-              { label: 'Top rated', icon: '⭐', train: topRated, sub: `${topRated.rating}/5`,        accent: '#6366f1' },
+              { label: tl('search.fastest'),   icon: '⚡', train: fastest,  sub: fmtDuration(fastest.duration), accent: '#f97316' },
+              { label: tl('search.cheapest'),  icon: '💰', train: cheapest, sub: `₹${cheapest.price.SL}`,       accent: '#10b981' },
+              { label: tl('search.topRated'),  icon: '⭐', train: topRated, sub: `${topRated.rating}/5`,        accent: '#6366f1' },
             ].map(({ label, icon, train, sub, accent }) => (
               <button key={label} onClick={() => goBook(train.id)} style={{
                 background: isDark ? 'rgba(255,255,255,0.03)' : 'white',
@@ -316,7 +316,7 @@ export default function SearchResults({ user, onLogout }) {
           <div style={{ width: 1, height: 16, background: t.border, margin: '0 2px' }} />
 
           <span style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}>SORT</span>
-          {[['departure', 'Earliest'], ['duration', 'Fastest'], ['price', 'Cheapest'], ['rating', 'Rating']].map(([v, l]) => (
+          {[['departure', tl('search.earliest')], ['duration', tl('search.fastest')], ['price', tl('search.cheapest')], ['rating', tl('search.rating')]].map(([v, l]) => (
             <button key={v} onClick={() => setSort(v)} style={{
               padding: '5px 13px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500,
               background: sort === v ? (isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff') : (isDark ? 'rgba(255,255,255,0.03)' : t.pill),
@@ -354,7 +354,7 @@ export default function SearchResults({ user, onLogout }) {
             <div style={{ textAlign: 'center', padding: '60px 0', color: t.textMuted }}>
               <div style={{ fontSize: 40, marginBottom: 14 }}>🚂</div>
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6, color: t.textSec }}>{tl('search.noTrains')}</div>
-              <div style={{ fontSize: 13 }}>Try a different class, time slot, or date</div>
+              <div style={{ fontSize: 13 }}>{tl('search.tryDifferentFilters')}</div>
             </div>
           ) : (
             trains.map(tr => (
@@ -446,12 +446,12 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
               {train.tags.includes('wifi') && (
                 <span style={{ color: t.textMuted, fontSize: 11, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Wifi size={10} /> Wi-Fi
+                  <Wifi size={10} /> {tl('search.wifi')}
                 </span>
               )}
               {train.tags.includes('food') && (
                 <span style={{ color: t.textMuted, fontSize: 11, display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Coffee size={10} /> Pantry
+                  <Coffee size={10} /> {tl('search.pantry')}
                 </span>
               )}
               <span style={{ color: t.textMuted, fontSize: 11 }}>{train.days}</span>
@@ -552,7 +552,7 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
               color: t.textMuted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 0',
             }}>
-              {expanded ? 'Hide' : tl('search.runsDays')}
+              {expanded ? tl('search.hide') : tl('search.runsDays')}
               <ChevronDown size={11} style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
           </div>
@@ -562,7 +562,7 @@ function TrainCard({ train, cls, quota, fmtDuration, onBook, t, isDark, isMobile
       {/* ── Schedule panel ── */}
       {expanded && (
         <div style={{ borderTop: `1px solid ${t.border}`, padding: isMobile ? '14px 16px' : '16px 24px', background: isDark ? 'rgba(255,255,255,0.01)' : t.bgAlt }}>
-          <p style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>Route</p>
+          <p style={{ color: t.textMuted, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>{tl('search.route')}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               ['New Delhi', '--', train.dep, 'Day 1'],

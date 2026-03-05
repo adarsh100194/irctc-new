@@ -17,10 +17,10 @@ const TRAINS = {
 const BASE_PRICES = { SL: 745, '3A': 1960, '2A': 2810, '1A': 4680, All: 745 }
 
 const MEAL_OPTIONS = [
-  { id: 'none',   label: 'No Preference', icon: '—' },
-  { id: 'veg',    label: 'Veg',           icon: '🥗' },
-  { id: 'nonveg', label: 'Non-Veg',       icon: '🍖' },
-  { id: 'jain',   label: 'Jain',          icon: '🌿' },
+  { id: 'none',   tlKey: 'booking.noPreference', icon: '—' },
+  { id: 'veg',    tlKey: 'booking.veg',          icon: '🥗' },
+  { id: 'nonveg', tlKey: 'booking.nonVeg',       icon: '🍖' },
+  { id: 'jain',   tlKey: 'booking.jain',         icon: '🌿' },
 ]
 
 const EWALLET_BALANCE = 843
@@ -536,9 +536,9 @@ export default function BookingPage({ user, onLogout }) {
 
                       {/* Meal preference */}
                       <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.border}` }}>
-                        <label style={{ ...labelStyle, marginBottom: 10 }}>Meal Preference</label>
+                        <label style={{ ...labelStyle, marginBottom: 10 }}>{tl('booking.meal')}</label>
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {MEAL_OPTIONS.map(({ id, label, icon }) => (
+                          {MEAL_OPTIONS.map(({ id, tlKey, icon }) => (
                             <button key={id} type="button" onClick={() => updateP(i, 'meal', id)} style={{
                               padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
                               border: `1px solid ${p.meal === id ? t.accentBorder : t.border}`,
@@ -548,7 +548,7 @@ export default function BookingPage({ user, onLogout }) {
                               display: 'flex', alignItems: 'center', gap: 5,
                               transition: 'all 0.15s',
                             }}>
-                              <span style={{ fontSize: 12 }}>{icon}</span> {label}
+                              <span style={{ fontSize: 12 }}>{icon}</span> {tl(tlKey)}
                             </button>
                           ))}
                         </div>

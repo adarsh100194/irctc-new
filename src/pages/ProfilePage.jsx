@@ -407,16 +407,16 @@ export default function ProfilePage({ user, onLogout }) {
             border: `1px solid ${t.border}`, background: 'transparent', color: t.textSec,
             fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
           }}>
-            <Edit3 size={13} /> {editMode ? 'Cancel' : tl('profile.editProfile')}
+            <Edit3 size={13} /> {editMode ? tl('profile.cancel') : tl('profile.editProfile')}
           </button>
         </div>
 
         {/* ── Stats ── */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
-          <StatCard icon={Train}      label="Total Bookings" value={totalBookings}                        color="#6366f1" t={t} isDark={isDark} />
-          <StatCard icon={Calendar}   label="Upcoming Trips"  value={upcomingCount}                        color="#f97316" t={t} isDark={isDark} />
-          <StatCard icon={MapPin}     label="Destinations"    value={destinations}                          color="#34d399" t={t} isDark={isDark} />
-          <StatCard icon={CreditCard} label="Total Spent"     value={`₹${(totalSpent/1000).toFixed(1)}K`} color="#3b82f6" t={t} isDark={isDark} />
+          <StatCard icon={Train}      label={tl('profile.totalBookings')} value={totalBookings}                        color="#6366f1" t={t} isDark={isDark} />
+          <StatCard icon={Calendar}   label={tl('profile.upcomingTrips')} value={upcomingCount}                        color="#f97316" t={t} isDark={isDark} />
+          <StatCard icon={MapPin}     label={tl('profile.destinations')}  value={destinations}                          color="#34d399" t={t} isDark={isDark} />
+          <StatCard icon={CreditCard} label={tl('profile.totalSpent')}    value={`₹${(totalSpent/1000).toFixed(1)}K`} color="#3b82f6" t={t} isDark={isDark} />
         </div>
 
         {/* ── Page-level tabs ── */}
@@ -450,10 +450,10 @@ export default function ProfilePage({ user, onLogout }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                     {[
-                      ['Full Name', 'name', 'text'],
-                      ['Date of Birth', 'dob', 'date'],
-                      ['Email', 'email', 'email'],
-                      ['Mobile', 'phone', 'tel'],
+                      [tl('profile.fullName'), 'name', 'text'],
+                      [tl('profile.dob'),      'dob',  'date'],
+                      [tl('profile.email'),    'email', 'email'],
+                      [tl('profile.mobile'),   'phone', 'tel'],
                     ].map(([lbl, key, type]) => (
                       <div key={key}>
                         <label style={labelSt}>{lbl}</label>
@@ -466,22 +466,22 @@ export default function ProfilePage({ user, onLogout }) {
                     ))}
                   </div>
                   <div>
-                    <label style={labelSt}>Address</label>
+                    <label style={labelSt}>{tl('profile.address')}</label>
                     <input value={editProfile.address} onChange={e => setEditProfile({ ...editProfile, address: e.target.value })} style={inputSt} />
                   </div>
                   <button onClick={handleSave} style={{ padding: '11px 24px', borderRadius: 12, border: 'none', background: t.accentGrad, color: 'white', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, width: 'fit-content' }}>
-                    <Check size={14} /> Save Changes
+                    <Check size={14} /> {tl('profile.saveChanges')}
                   </button>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 0 }}>
                   {[
-                    { icon: User,        label: 'Full Name',     value: profile.name },
-                    { icon: Calendar,    label: 'Date of Birth', value: new Date(profile.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
-                    { icon: Mail,        label: 'Email',         value: profile.email },
-                    { icon: Phone,       label: 'Mobile',        value: `+91 ${profile.phone.slice(0,5)} ${profile.phone.slice(5)}` },
-                    { icon: MapPin,      label: 'Address',       value: profile.address },
-                    { icon: ShieldCheck, label: 'Aadhaar',       value: aadhaarLinked ? 'XXXX XXXX 1234 ✓' : 'Not linked', aadhaar: true },
+                    { icon: User,        label: tl('profile.fullName'), value: profile.name },
+                    { icon: Calendar,    label: tl('profile.dob'),      value: new Date(profile.dob).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) },
+                    { icon: Mail,        label: tl('profile.email'),    value: profile.email },
+                    { icon: Phone,       label: tl('profile.mobile'),   value: `+91 ${profile.phone.slice(0,5)} ${profile.phone.slice(5)}` },
+                    { icon: MapPin,      label: tl('profile.address'),  value: profile.address },
+                    { icon: ShieldCheck, label: tl('profile.aadhaar'),   value: aadhaarLinked ? 'XXXX XXXX 1234 ✓' : tl('profile.notLinked'), aadhaar: true },
                   ].map(({ icon: Icon, label, value, aadhaar }) => (
                     <div key={label} style={{ padding: '13px 0', borderBottom: `1px solid ${t.border}`, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                       <div style={{ width: 28, height: 28, borderRadius: 8, background: isDark ? 'rgba(255,255,255,0.05)' : t.bgAlt, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
@@ -507,7 +507,7 @@ export default function ProfilePage({ user, onLogout }) {
                 </div>
                 <div>
                   <h2 style={{ color: t.text, fontSize: 15, fontWeight: 700, margin: 0 }}>
-                    Link Aadhaar
+                    {tl('profile.linkAadhaar')}
                   </h2>
                   <p style={{ color: t.textMuted, fontSize: 12, margin: '3px 0 0' }}>
                     Required for senior citizen concession, ladies quota, and faster KYC
@@ -520,11 +520,11 @@ export default function ProfilePage({ user, onLogout }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', borderRadius: 12, background: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', border: '1px solid rgba(52,211,153,0.25)' }}>
                     <ShieldCheck size={18} style={{ color: '#34d399' }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ color: '#34d399', fontWeight: 700, fontSize: 14 }}>Aadhaar Verified</div>
+                      <div style={{ color: '#34d399', fontWeight: 700, fontSize: 14 }}>{tl('profile.aadhaarVerified')}</div>
                       <div style={{ color: t.textSec, fontSize: 12, marginTop: 2 }}>XXXX XXXX 1234 · Linked successfully</div>
                     </div>
                     <button onClick={() => setAadhaarLinked(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <X size={12} /> Unlink
+                      <X size={12} /> {tl('profile.unlink')}
                     </button>
                   </div>
                 </div>
@@ -553,7 +553,7 @@ export default function ProfilePage({ user, onLogout }) {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                         <button onClick={handleSendOtp} style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: t.accentGrad, color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                          Send OTP
+                          {tl('profile.sendOtp')}
                         </button>
                       </div>
                     </div>
@@ -564,7 +564,7 @@ export default function ProfilePage({ user, onLogout }) {
                       <div style={{ padding: '10px 14px', borderRadius: 10, background: isDark ? 'rgba(99,102,241,0.08)' : '#eef2ff', border: '1px solid rgba(99,102,241,0.2)', marginBottom: 14, fontSize: 13, color: '#6366f1' }}>
                         📱 OTP sent to registered mobile ****7890 · (Demo: use <strong>123456</strong>)
                       </div>
-                      <label style={labelSt}>Enter OTP</label>
+                      <label style={labelSt}>{tl('profile.enterOtp')}</label>
                       <div style={{ display: 'flex', gap: 10 }}>
                         <input
                           value={aadhaarOtp}
@@ -574,12 +574,12 @@ export default function ProfilePage({ user, onLogout }) {
                           style={{ ...inputSt, letterSpacing: '0.3em', fontFamily: 'monospace', fontSize: 20, borderColor: aadhaarError ? t.red : t.inputBorder }}
                         />
                         <button onClick={handleVerifyOtp} style={{ padding: '11px 20px', borderRadius: 10, border: 'none', background: '#22c55e', color: 'white', fontWeight: 700, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                          Verify
+                          {tl('profile.verify')}
                         </button>
                       </div>
                       {aadhaarError && <div style={{ color: t.red, fontSize: 11, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={10} /> {aadhaarError}</div>}
                       <button onClick={() => { setAadhaarStep(0); setAadhaarOtp(''); setAadhaarError('') }} style={{ marginTop: 10, background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <RefreshCw size={11} /> Resend OTP
+                        <RefreshCw size={11} /> {tl('profile.resendOtp')}
                       </button>
                     </div>
                   )}

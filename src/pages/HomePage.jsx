@@ -269,10 +269,10 @@ export default function HomePage({ user, onLogout }) {
   const QUICK_TOOLS = [
     { icon: '🔍', label: tl('home.pnrStatus'), sub: tl('home.enterPnr'), color: '#6366f1', bg: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', onClick: () => { setShowPnr(true); setPnrResult(null); setPnrInput('') } },
     { icon: '📡', label: tl('home.trainRunning'), sub: tl('home.enterTrainNum'), color: '#10b981', bg: isDark ? 'rgba(52,211,153,0.08)' : '#ecfdf5', onClick: () => { setShowTrack(true); setTrackResult(null); setTrainNumInput('') } },
-    { icon: '🗓️', label: tl('home.timetable'), sub: 'Timings & stops', color: '#f97316', bg: isDark ? 'rgba(249,115,22,0.1)' : '#fff7ed', onClick: () => navigate('/search?from=New Delhi (NDLS)&to=Mumbai CST (CSTM)&date=' + date + '&class=All Classes') },
-    { icon: '❌', label: tl('home.refundStatus'), sub: 'E-cancellation', color: '#f87171', bg: isDark ? 'rgba(248,113,113,0.08)' : '#fef2f2', onClick: () => navigate('/bookings') },
-    { icon: '🍱', label: 'Order Food', sub: 'E-Catering', color: '#f59e0b', bg: isDark ? 'rgba(245,158,11,0.08)' : '#fffbeb', onClick: () => navigate('/bookings') },
-    { icon: '💳', label: 'eWallet', sub: 'IRCTC Wallet', color: '#3b82f6', bg: isDark ? 'rgba(59,130,246,0.08)' : '#eff6ff', onClick: () => navigate('/profile') },
+    { icon: '🗓️', label: tl('home.timetable'), sub: tl('home.timingsStops'), color: '#f97316', bg: isDark ? 'rgba(249,115,22,0.1)' : '#fff7ed', onClick: () => navigate('/search?from=New Delhi (NDLS)&to=Mumbai CST (CSTM)&date=' + date + '&class=All Classes') },
+    { icon: '❌', label: tl('home.refundStatus'), sub: tl('home.eCancellation'), color: '#f87171', bg: isDark ? 'rgba(248,113,113,0.08)' : '#fef2f2', onClick: () => navigate('/bookings') },
+    { icon: '🍱', label: tl('home.orderFood'), sub: 'E-Catering', color: '#f59e0b', bg: isDark ? 'rgba(245,158,11,0.08)' : '#fffbeb', onClick: () => navigate('/bookings') },
+    { icon: '💳', label: tl('home.eWallet'), sub: tl('home.eWalletLabel'), color: '#3b82f6', bg: isDark ? 'rgba(59,130,246,0.08)' : '#eff6ff', onClick: () => navigate('/profile') },
   ]
 
   const cardSt = {
@@ -298,19 +298,19 @@ export default function HomePage({ user, onLogout }) {
           {/* Welcome strip */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
             <span style={{ color: t.textSec, fontSize: 14, fontWeight: 500 }}>
-              Welcome back, <strong style={{ color: t.text }}>{user?.name?.split(' ')[0]}</strong> 👋
+              {tl('home.welcomeBack')}, <strong style={{ color: t.text }}>{user?.name?.split(' ')[0]}</strong> 👋
             </span>
             {user?.aadhaarVerified && (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 20, background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', color: '#34d399', fontSize: 10, fontWeight: 700 }}>
-                <ShieldCheck size={10} /> AADHAAR VERIFIED
+                <ShieldCheck size={10} /> {tl('profile.aadhaarVerified')}
               </span>
             )}
           </div>
 
           <h1 style={{ fontSize: isMobile ? '2rem' : 'clamp(2.4rem, 6vw, 3.8rem)', fontWeight: 900, color: t.text, letterSpacing: '-0.04em', lineHeight: 1.05, marginBottom: 10 }}>
-            Where are you<br />going next?
+            {tl('home.whereGoingNext')}
           </h1>
-          <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>Book 13,000+ daily trains across India</p>
+          <p style={{ color: t.textSec, fontSize: 14, marginBottom: 28 }}>{tl('home.bookTrainsSubtitle')}</p>
 
           {/* ── Search form ── */}
           <form onSubmit={search}>
@@ -418,8 +418,8 @@ export default function HomePage({ user, onLogout }) {
           {/* Frequent routes */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ marginBottom: 14 }}>
-              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>Your frequent routes</h2>
-              <p style={{ color: t.textSec, fontSize: 12 }}>Based on your past bookings</p>
+              <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{tl('home.frequentRoutes')}</h2>
+              <p style={{ color: t.textSec, fontSize: 12 }}>{tl('home.basedOnBookings')}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {FREQUENT_ROUTES.map((r, i) => (
@@ -550,7 +550,7 @@ export default function HomePage({ user, onLogout }) {
             {/* eWallet balance teaser */}
             <div style={{ marginTop: 12, padding: '14px 18px', background: isDark ? 'rgba(59,130,246,0.06)' : '#eff6ff', border: `1px solid ${isDark ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.2)'}`, borderRadius: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <span style={{ color: t.textSec, fontSize: 12, fontWeight: 600 }}>💳 IRCTC eWallet</span>
+                <span style={{ color: t.textSec, fontSize: 12, fontWeight: 600 }}>💳 {tl('home.eWalletLabel')}</span>
                 <span style={{ color: '#3b82f6', fontSize: 12, fontWeight: 700 }}>₹2,450</span>
               </div>
               <div style={{ color: t.textMuted, fontSize: 11 }}>Available balance · <span style={{ color: '#3b82f6', cursor: 'pointer' }}>Add money</span></div>
