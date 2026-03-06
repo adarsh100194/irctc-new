@@ -19,7 +19,7 @@ export default function App() {
   return (
     <LanguageProvider>
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/irctc-new">
         <Routes>
           <Route path="/" element={
             isLoggedIn ? <Navigate to="/home" replace /> : <LoginPage onLogin={handleLogin} />

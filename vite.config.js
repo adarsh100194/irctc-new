@@ -3,7 +3,12 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: '/irctc-new/',
   plugins: [react(), tailwindcss()],
+  build: {
+    minify: false,
+    sourcemap: false,
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
