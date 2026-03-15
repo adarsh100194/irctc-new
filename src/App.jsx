@@ -8,6 +8,7 @@ import SearchResults from './pages/SearchResults'
 import BookingPage from './pages/BookingPage'
 import ProfilePage from './pages/ProfilePage'
 import BookingsPage from './pages/BookingsPage'
+import RouteTracker from './components/RouteTracker'
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -34,6 +35,7 @@ export default function App() {
     <LanguageProvider>
     <ThemeProvider>
       <BrowserRouter basename="/irctc-new">
+        <RouteTracker />
         <Routes>
           <Route path="/" element={
             isLoggedIn ? <Navigate to="/home" replace /> : <LoginPage onLogin={handleLogin} />
