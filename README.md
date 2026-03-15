@@ -26,6 +26,9 @@ npm run dev
 
 Open **http://localhost:5173** in your browser.
 
+> If your app is configured with `base: '/irctc-new/'`, open:
+> **http://localhost:5173/irctc-new/**
+
 ### Build for production
 
 ```bash
@@ -56,6 +59,9 @@ Alternatively, log in instantly via **Mobile OTP**, **Aadhaar OTP**, or **DigiLo
 ## ✨ Full Feature List
 
 ### 🏠 Home Page
+- **Feature Tutorial (Post Login)** — 5-step guided onboarding with **Next / Skip** flow
+- **Spotlight Walkthrough** — Highlights only the active control/section while dimming the rest of the UI
+- **Mobile-Friendly Tutorial** — Dedicated mobile targets (theme, language, menu, search, quick tools)
 - **Smart Search** — Station autocomplete with recent searches, swap from/to, date picker, class selector
 - **Quick Tools Row** — PNR Status, Track Train, Train Schedule, Cancel Ticket, Order Food, eWallet tiles
 - **PNR Enquiry Modal** — Look up any PNR for coach, berth, and passenger confirmation status
@@ -194,6 +200,31 @@ irctc-new/
 ├── eslint.config.js
 └── package.json
 ```
+
+---
+
+## 🚀 cPanel Deployment (Subfolder)
+
+For deployment to `public_html/irctc-new/`:
+
+1. Build production files:
+
+```bash
+npm run build
+```
+
+2. Upload **only** files from `dist/`:
+  - `index.html`
+  - `assets/`
+  - `.htaccess`
+  - `vite.svg`
+
+3. Do **not** upload source/dev files (`src/`, `.git/`, `.claude/`, `README.md`, etc.).
+
+4. Open:
+  - `https://your-domain.com/irctc-new/`
+
+> Note: Some cPanel malware scanners can false-flag compressed JS zip signatures. If that happens, upload files individually from `dist/`.
 
 ---
 

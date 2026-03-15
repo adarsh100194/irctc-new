@@ -5,7 +5,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useWindowSize } from '../hooks/useWindowSize'
 
-export default function Navbar({ user, onLogout }) {
+export default function Navbar({ user, onLogout, tutorialTarget = null }) {
   const [drop,       setDrop]       = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langOpen,   setLangOpen]   = useState(false)
@@ -32,6 +32,16 @@ export default function Navbar({ user, onLogout }) {
   }
 
   const currentLang = languages.find(l => l.code === lang)
+  const spotlightStyle = (id, radius = 10) => (
+    tutorialTarget === id
+      ? {
+          position: 'relative',
+          zIndex: 121,
+          borderRadius: radius,
+          boxShadow: '0 0 0 3px rgba(251,146,60,0.85), 0 0 0 8px rgba(99,102,241,0.35)',
+        }
+      : {}
+  )
 
   return (
     <>
@@ -75,7 +85,7 @@ export default function Navbar({ user, onLogout }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
 
           {/* Theme toggle */}
-          <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} style={iconBtn}
+          <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'} data-tutorial-id="nav-theme-toggle" style={{ ...iconBtn, ...spotlightStyle('nav-theme-toggle', 10) }}
             onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)'}
             onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)'}
           >
@@ -87,7 +97,8 @@ export default function Navbar({ user, onLogout }) {
             <button
               onClick={() => { setLangOpen(o => !o); setDrop(false) }}
               title={tl('lang.select')}
-              style={{ ...iconBtn, gap: 4, paddingInline: 8, width: 'auto', minWidth: 34 }}
+              data-tutorial-id="nav-language-toggle"
+              style={{ ...iconBtn, gap: 4, paddingInline: 8, width: 'auto', minWidth: 34, ...spotlightStyle('nav-language-toggle', 10) }}
               onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.25)'}
               onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)'}
             >
@@ -142,7 +153,7 @@ export default function Navbar({ user, onLogout }) {
 
           {/* Bell (desktop only) */}
           {!isMobile && (
-            <button style={{ width: 34, height: 34, borderRadius: 10, border: 'none', cursor: 'pointer', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: t.navText, position: 'relative' }}>
+            <button data-tutorial-id="nav-notifications" style={{ width: 34, height: 34, borderRadius: 10, border: 'none', cursor: 'pointer', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: t.navText, position: 'relative', ...spotlightStyle('nav-notifications', 10) }}>
               <Bell size={15} />
               <span style={{ position: 'absolute', top: 8, right: 8, width: 5, height: 5, borderRadius: '50%', background: t.accent }} />
             </button>
@@ -151,10 +162,11 @@ export default function Navbar({ user, onLogout }) {
           {/* Desktop user dropdown */}
           {!isMobile && (
             <div style={{ position: 'relative' }}>
-              <button onClick={() => { setDrop(!drop); setLangOpen(false) }} style={{
+              <button data-tutorial-id="nav-account-menu" onClick={() => { setDrop(!drop); setLangOpen(false) }} style={{
                 display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 5px 7px',
                 borderRadius: 10, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.25)'}`,
                 background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.15)', cursor: 'pointer',
+                ...spotlightStyle('nav-account-menu', 10),
               }}>
                 <div style={{ width: 22, height: 22, borderRadius: 6, background: t.accentGrad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 10, fontWeight: 800 }}>
                   {user?.name?.[0]}
@@ -214,11 +226,12 @@ export default function Navbar({ user, onLogout }) {
 
           {/* Mobile hamburger */}
           {isMobile && (
-            <button onClick={() => setMobileOpen(!mobileOpen)} style={{
+            <button data-tutorial-id="nav-mobile-menu" onClick={() => setMobileOpen(!mobileOpen)} style={{
               width: 36, height: 36, borderRadius: 10, border: 'none', cursor: 'pointer',
               background: mobileOpen ? 'rgba(255,255,255,0.15)' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#ffffff', transition: 'background 0.15s',
+              ...spotlightStyle('nav-mobile-menu', 10),
             }}>
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>

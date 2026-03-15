@@ -161,11 +161,110 @@ const getCountdown = (dateStr, depTime, now) => {
 
 const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })
 
-export default function HomePage({ user, onLogout }) {
+function FeatureTutorial({ stepIndex, totalSteps, step, onNext, onSkip, targetRect }) {
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800
+  const cardWidth = Math.min(420, vw - 24)
+  const cardHeight = 220
+
+  let cardLeft = Math.max(12, (vw - cardWidth) / 2)
+  let cardTop = Math.max(12, vh - cardHeight - 16)
+
+  if (targetRect) {
+    const centeredLeft = targetRect.left + (targetRect.width / 2) - (cardWidth / 2)
+    cardLeft = Math.min(vw - cardWidth - 12, Math.max(12, centeredLeft))
+
+    const below = targetRect.top + targetRect.height + 14
+    const above = targetRect.top - cardHeight - 14
+    cardTop = (below + cardHeight <= vh - 10) ? below : Math.max(12, above)
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 120 }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(2, 6, 23, 0.72)', backdropFilter: 'blur(1px)' }} />
+
+      {targetRect && (
+        <div style={{
+          position: 'fixed',
+          left: Math.max(4, targetRect.left - 6),
+          top: Math.max(4, targetRect.top - 6),
+          width: targetRect.width + 12,
+          height: targetRect.height + 12,
+          borderRadius: 12,
+          border: '2px solid rgba(251,146,60,0.95)',
+          boxShadow: '0 0 0 8px rgba(99,102,241,0.35)',
+          pointerEvents: 'none',
+          zIndex: 121,
+        }} />
+      )}
+
+      <div style={{
+        position: 'fixed', left: cardLeft, top: cardTop,
+        width: cardWidth, borderRadius: 18, background: '#ffffff',
+        border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 24px 80px rgba(0,0,0,0.35)',
+        overflow: 'hidden',
+        zIndex: 122,
+      }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(15,23,42,0.08)', background: 'linear-gradient(90deg, #fff7ed 0%, #eef2ff 100%)' }}>
+          <div style={{ color: '#64748b', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Feature Tutorial · Step {stepIndex + 1} of {totalSteps}
+          </div>
+          <h3 style={{ marginTop: 8, color: '#0f172a', fontSize: 21, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            {step.title}
+          </h3>
+        </div>
+
+        <div style={{ padding: '18px 20px 10px' }}>
+          <p style={{ color: '#334155', fontSize: 14, lineHeight: 1.65, marginBottom: 12 }}>
+            {step.description}
+          </p>
+          <div style={{
+            padding: '10px 12px', borderRadius: 10,
+            border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)',
+            color: '#4338ca', fontSize: 12, fontWeight: 600,
+          }}>
+            Tip: {step.tip}
+          </div>
+        </div>
+
+        <div style={{
+          padding: '14px 20px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          gap: 8, flexWrap: 'wrap', borderTop: '1px solid rgba(15,23,42,0.08)',
+        }}>
+          <button
+            onClick={onSkip}
+            style={{
+              padding: '9px 14px', borderRadius: 10, border: '1px solid #cbd5e1',
+              background: 'white', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            }}
+          >
+            Skip tutorial
+          </button>
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              onClick={onNext}
+              style={{
+                padding: '9px 16px', borderRadius: 10, border: 'none',
+                background: 'linear-gradient(90deg, #f97316 0%, #6366f1 100%)', color: 'white',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              {stepIndex === totalSteps - 1 ? 'Finish' : 'Next'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function HomePage({ user, onLogout, showTutorial = false, onCloseTutorial }) {
   const navigate = useNavigate()
   const { t, isDark } = useTheme()
   const { tl } = useLanguage()
   const { isMobile, isTablet } = useWindowSize()
+  const [tutorialStep, setTutorialStep] = useState(0)
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
@@ -183,6 +282,7 @@ export default function HomePage({ user, onLogout }) {
   const [showTrack, setShowTrack] = useState(false)
   const [trainNumInput, setTrainNumInput] = useState('')
   const [trackResult, setTrackResult] = useState(null)
+  const [tutorialTargetRect, setTutorialTargetRect] = useState(null)
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000)
@@ -283,9 +383,133 @@ export default function HomePage({ user, onLogout }) {
     boxShadow: isDark ? 'none' : t.shadow,
   }
 
+  const tutorialSteps = isMobile
+    ? [
+        {
+          title: 'Theme control',
+          description: 'Use this icon to switch between Light and Dark mode for better day/night readability.',
+          tip: 'Dark mode is useful for low-light sessions.',
+          target: 'nav-theme-toggle',
+        },
+        {
+          title: 'Language control',
+          description: 'Use this icon to switch the interface language instantly.',
+          tip: 'Great for users who prefer regional language support.',
+          target: 'nav-language-toggle',
+        },
+        {
+          title: 'Main menu',
+          description: 'Use this menu icon to access account actions like Profile, My Bookings, and Sign Out.',
+          tip: 'On mobile, this menu is your quick navigation center.',
+          target: 'nav-mobile-menu',
+        },
+        {
+          title: 'Book tickets quickly',
+          description: 'Use this search section: select From, To, Date, and Class, then tap Search to see train options and fares.',
+          tip: 'You can swap source/destination with one tap.',
+          target: 'home-search-form',
+        },
+        {
+          title: 'Quick tools',
+          description: 'Use Quick Tools for PNR status, train running status, timetable, refunds, and wallet shortcuts.',
+          tip: 'These tools reduce taps for common tasks.',
+          target: 'home-quick-tools',
+        },
+      ]
+    : [
+        {
+          title: 'Theme control',
+          description: 'Use this icon to switch between Light and Dark mode for better day/night readability.',
+          tip: 'Dark mode is useful for low-light sessions.',
+          target: 'nav-theme-toggle',
+        },
+        {
+          title: 'Language control',
+          description: 'Use this icon to switch the interface language instantly.',
+          tip: 'Great for users who prefer regional language support.',
+          target: 'nav-language-toggle',
+        },
+        {
+          title: 'Notifications menu',
+          description: 'This bell icon helps users discover updates, alerts, and travel notices.',
+          tip: 'Unread notifications are marked with a small accent dot.',
+          target: 'nav-notifications',
+        },
+        {
+          title: 'Account menu',
+          description: 'Open this user menu for Profile, My Bookings, and logout options.',
+          tip: 'Use it to quickly access frequent account actions.',
+          target: 'nav-account-menu',
+        },
+        {
+          title: 'Book tickets quickly',
+          description: 'Use this search section: select From, To, Date, and Class, then tap Search to see train options and fares.',
+          tip: 'You can swap source/destination with one tap and use tools below.',
+          target: 'home-search-form',
+        },
+      ]
+
+  const currentTutorialTarget = tutorialSteps[tutorialStep]?.target
+
+  const handleTutorialNext = () => {
+    if (tutorialStep >= tutorialSteps.length - 1) {
+      setTutorialStep(0)
+      onCloseTutorial?.()
+      return
+    }
+    setTutorialStep(prev => prev + 1)
+  }
+
+  const handleTutorialSkip = () => {
+    setTutorialStep(0)
+    onCloseTutorial?.()
+  }
+
+  useEffect(() => {
+    if (!showTutorial || !currentTutorialTarget) {
+      setTutorialTargetRect(null)
+      return
+    }
+
+    const updateTargetRect = () => {
+      const el = document.querySelector(`[data-tutorial-id="${currentTutorialTarget}"]`)
+      if (!el) {
+        setTutorialTargetRect(null)
+        return
+      }
+
+      const rect = el.getBoundingClientRect()
+      setTutorialTargetRect({
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      })
+    }
+
+    updateTargetRect()
+    window.addEventListener('resize', updateTargetRect)
+    window.addEventListener('scroll', updateTargetRect, true)
+    return () => {
+      window.removeEventListener('resize', updateTargetRect)
+      window.removeEventListener('scroll', updateTargetRect, true)
+    }
+  }, [showTutorial, tutorialStep, currentTutorialTarget])
+
+  const spotlightStyle = (id, radius = 14) => (
+    showTutorial && currentTutorialTarget === id
+      ? {
+          position: 'relative',
+          zIndex: 121,
+          borderRadius: radius,
+          boxShadow: '0 0 0 3px rgba(251,146,60,0.85), 0 0 0 8px rgba(99,102,241,0.35)',
+        }
+      : {}
+  )
+
   return (
     <div style={{ minHeight: '100vh', background: t.bg }}>
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user} onLogout={onLogout} tutorialTarget={showTutorial ? currentTutorialTarget : null} />
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', paddingTop: 48, paddingBottom: 40, overflow: 'hidden' }}>
@@ -314,7 +538,7 @@ export default function HomePage({ user, onLogout }) {
 
           {/* ── Search form ── */}
           <form onSubmit={search}>
-            <div style={{
+            <div data-tutorial-id="home-search-form" style={{
               display: 'flex', alignItems: isMobile ? 'stretch' : 'center',
               flexDirection: isMobile ? 'column' : 'row',
               background: isDark ? 'rgba(255,255,255,0.05)' : 'white',
@@ -322,6 +546,7 @@ export default function HomePage({ user, onLogout }) {
               borderRadius: 20, padding: isMobile ? '12px' : '8px 8px 8px 16px',
               boxShadow: isDark ? 'none' : '0 4px 24px rgba(0,53,128,0.08)',
               gap: isMobile ? 10 : 0,
+              ...spotlightStyle('home-search-form', 20),
             }}>
               {/* FROM */}
               <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
@@ -382,7 +607,7 @@ export default function HomePage({ user, onLogout }) {
       </div>
 
       {/* ── Quick Tools ── */}
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 16px 28px' }}>
+      <div data-tutorial-id="home-quick-tools" style={{ maxWidth: 860, margin: '0 auto', padding: '0 16px 28px', ...spotlightStyle('home-quick-tools', 14) }}>
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 3 : 6}, 1fr)`, gap: 8 }}>
           {QUICK_TOOLS.map(tool => (
             <button key={tool.label} onClick={tool.onClick} style={{
@@ -416,7 +641,7 @@ export default function HomePage({ user, onLogout }) {
           )}
 
           {/* Frequent routes */}
-          <div style={{ marginBottom: 28 }}>
+          <div data-tutorial-id="home-frequent-routes" style={{ marginBottom: 28, ...spotlightStyle('home-frequent-routes', 14) }}>
             <div style={{ marginBottom: 14 }}>
               <h2 style={{ color: t.text, fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 2 }}>{tl('home.frequentRoutes')}</h2>
               <p style={{ color: t.textSec, fontSize: 12 }}>{tl('home.basedOnBookings')}</p>
@@ -653,6 +878,17 @@ export default function HomePage({ user, onLogout }) {
           )}
         </Modal>
       )}
+
+      {showTutorial && (
+        <FeatureTutorial
+          stepIndex={tutorialStep}
+          totalSteps={tutorialSteps.length}
+          step={tutorialSteps[tutorialStep]}
+          onNext={handleTutorialNext}
+          onSkip={handleTutorialSkip}
+          targetRect={tutorialTargetRect}
+        />
+      )}
     </div>
   )
 }
@@ -670,6 +906,7 @@ function Modal({ title, onClose, t, isDark, children }) {
         </div>
         {children}
       </div>
+
     </div>
   )
 }

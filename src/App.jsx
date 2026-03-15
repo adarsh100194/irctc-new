@@ -12,9 +12,23 @@ import BookingsPage from './pages/BookingsPage'
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
+  const [showTutorial, setShowTutorial] = useState(false)
 
-  const handleLogin = (u) => { setIsLoggedIn(true); setUser({ ...u, aadhaarVerified: true }) }
-  const handleLogout = () => { setIsLoggedIn(false); setUser(null) }
+  const isTutorialPending = typeof window !== 'undefined' && sessionStorage.getItem('irctcTutorialPending') === '1'
+
+  const handleLogin = (u) => {
+    setIsLoggedIn(true)
+    setUser({ ...u, aadhaarVerified: true })
+    setShowTutorial(true)
+    if (typeof window !== 'undefined') sessionStorage.setItem('irctcTutorialPending', '1')
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+    setUser(null)
+    setShowTutorial(false)
+    if (typeof window !== 'undefined') sessionStorage.removeItem('irctcTutorialPending')
+  }
 
   return (
     <LanguageProvider>
@@ -25,7 +39,19 @@ export default function App() {
             isLoggedIn ? <Navigate to="/home" replace /> : <LoginPage onLogin={handleLogin} />
           } />
           <Route path="/home" element={
-            isLoggedIn ? <HomePage user={user} onLogout={handleLogout} /> : <Navigate to="/" replace />
+            isLoggedIn
+              ? (
+                <HomePage
+                  user={user}
+                  onLogout={handleLogout}
+                  showTutorial={showTutorial || isTutorialPending}
+                  onCloseTutorial={() => {
+                    setShowTutorial(false)
+                    if (typeof window !== 'undefined') sessionStorage.removeItem('irctcTutorialPending')
+                  }}
+                />
+              )
+              : <Navigate to="/" replace />
           } />
           <Route path="/search" element={
             isLoggedIn ? <SearchResults user={user} onLogout={handleLogout} /> : <Navigate to="/" replace />
